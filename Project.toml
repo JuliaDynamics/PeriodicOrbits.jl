@@ -1,7 +1,7 @@
-name = "DynamicalSystemsBase"
-uuid = "6e36e845-645a-534a-86f2-f5d4aa5a06b4"
-repo = "https://github.com/JuliaDynamics/DynamicalSystemsBase.jl.git"
-version = "3.8.3"
+name = "PeriodicOrbits"
+uuid = "41be5fce-5647-450b-ae37-a6739b881a1c"
+repo = "https://github.com/JuliaDynamics/PeriodicOrbits.jl.git"
+version = "0.1.0"
 
 [deps]
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
