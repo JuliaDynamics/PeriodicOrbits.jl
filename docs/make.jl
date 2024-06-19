@@ -1,11 +1,10 @@
 cd(@__DIR__)
 
-using DynamicalSystemsBase
+using PeriodicOrbits
 
 pages = [
     "index.md",
 ]
-using DynamicalSystemsBase.SciMLBase
 
 import Downloads
 Downloads.download(
@@ -14,6 +13,4 @@ Downloads.download(
 )
 include("build_docs_with_style.jl")
 
-build_docs_with_style(pages,
-    DynamicalSystemsBase, SciMLBase, StateSpaceSets;
-)
+build_docs_with_style(pages, PeriodicOrbits)
