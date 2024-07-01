@@ -12,6 +12,8 @@ export InitialGuess,
     periodic_orbit,
     periodic_orbits
 
+import Base: unique, in
+import DynamicalSystemsBase
 
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
@@ -46,8 +48,8 @@ end
 Return `true` if period of periodic orbit `po` is a subtype 
 of integer, `false` if it is a subtype of `AbstractFloat`.
 """
-isdiscretetime(po::PeriodicOrbit{AbstractArray{Real}, Integer}) = true
-isdiscretetime(po::PeriodicOrbit{AbstractArray{Real}, AbstractFloat}) = false
+DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{<:AbstractArray{<:Real}, <:Integer}) = true
+DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{<:AbstractArray{<:Real}, <:AbstractFloat}) = false
 
 
 """
@@ -99,17 +101,17 @@ function distance(ds::DynamicalSystem, po1::PeriodicOrbit, po2::PeriodicOrbit)
     end
 end
 
-function _distance(ds::DiscreteTimeDynamicalSystem, po1::PeriodicOrbit, po2::PeriodicOrbit)
+function _distance(ds::D, po1::PeriodicOrbit, po2::PeriodicOrbit) where {D<:DiscreteTimeDynamicalSystem}
     is_complete(po1) == false && complete_orbit!(ds, po1; Δt=1)
-    _distance(po2.points[1], po1.points)
+    _distance(po2.points[1], po1)
 end
 
 function _distance(ds::ContinuousTimeDynamicalSystem, po1::PeriodicOrbit, po2::PeriodicOrbit)
     throw("Function not implemented yet.")
 end
 
-function _distance(u::AbstractVector{Real}, po::PeriodicOrbit)
-    norm(po.points .- u, -Inf)
+function _distance(u::AbstractVector{<:Real}, po::PeriodicOrbit)
+    norm(po.points - [u], -Inf)
 end
 
 
@@ -155,7 +157,7 @@ the `u0` and some point in the periodic orbit `po` is less than `atol`, `false` 
 function doesn't complete the orbit `po`. Consider using `complete_orbit!` before calling this function.
 
 """
-function in(u0::AbstractArray{Real}, po::PeriodicOrbit, atol=1e-6)
+function Base.in(u0::AbstractArray{Real}, po::PeriodicOrbit, atol=1e-6)
     if isdiscretetime(po)
         return _distance(u0, po) < atol
     else
@@ -172,7 +174,7 @@ Returns a vector of unique periodic orbits from the vector `pos` of periodic orb
 By unique we mean that the distance between any two periodic orbits in the vector is 
 greater than `atol`. To see details about the distance function, see `distance`.
 """
-function unique(ds, pos::Vector{PeriodicOrbit}, atol=1e-6)
+function Base.unique(ds::DynamicalSystem, pos::Vector{PeriodicOrbit}, atol::Real=1e-6)
     if isempty(pos)
         return pos
     end
@@ -182,6 +184,7 @@ function unique(ds, pos::Vector{PeriodicOrbit}, atol=1e-6)
     unique_count = 1
 
     for po in pos[2:end]
+        @info "" po distance(ds, po, po)
         if all(npo -> distance(ds, npo, po) > atol, newvec[1:unique_count])
             unique_count += 1
             newvec[unique_count] = po
