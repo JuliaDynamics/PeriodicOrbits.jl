@@ -185,7 +185,6 @@ function Base.unique(ds::DynamicalSystem, pos::Vector{PeriodicOrbit}, atol::Real
     unique_count = 1
 
     for po in pos[2:end]
-        @info "" po distance(ds, po, po)
         if all(npo -> distance(ds, npo, po) > atol, newvec[1:unique_count])
             unique_count += 1
             newvec[unique_count] = po
