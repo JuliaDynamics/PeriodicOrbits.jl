@@ -6,5 +6,6 @@ using Reexport
 
 # exports:
 include("api.jl")
+include("algorithms/damped_nrm.jl")
 
 end
