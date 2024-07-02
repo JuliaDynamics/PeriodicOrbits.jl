@@ -37,25 +37,17 @@ function periodic_orbits(ds::CoupledODEs, alg::PeriodicOrbitFinder, igs::Vector{
                 ds2 = reverse_tands
             end
 
-            maximum(abs.(prev_step)) > alg.inftol && continue
-            prev_step[end] > alg.maxperiod && continue
-
-
-            i = 1
-            for i in 1:alg.maxiter
+            for _ in 1:alg.maxiter
                 reinit!(ds2, prev_step[1:end-1])
                 step!(ds2, abs(prev_step[end]))
 
                 if norm(current_state(ds2) - prev_step[1:end-1]) < alg.disttol
-                    println(norm(current_state(ds2) - prev_step[1:end-1]))
                     push!(pos, PeriodicOrbit{typeof(current_state(ds)), typeof(current_time(ds))}([prev_step[1:end-1]], prev_step[end]))
                     break
                 end
 
-
                 prev_step, status = next_step(prev_step, ds2, alg, dim)
                 status == false && break
-                # i % 100 == 0 && println("i: $i")
             end
         # catch e
         #     @warn e.msg
@@ -65,48 +57,17 @@ function periodic_orbits(ds::CoupledODEs, alg::PeriodicOrbitFinder, igs::Vector{
 end
 
 function next_step(prev_step, ds, alg, dim)
-    # println("started")
     X = prev_step[1:end-1]
     T = prev_step[end]
     reinit!(ds, X)
 
-    # println("finished0")
-    # println(T >= 0 ? "true" : "false")
-    # println(X)
-    # println(abs(T))
-
-    for t in 0:0.1:T
-        if maximum(abs.(current_deviations(ds))) > alg.inftol
-            return prev_step, false
-        end
-        step!(ds, abs(t))
-    end
-
     for t in 0:alg.checkperiod:T
-        # println(maximum(abs.(current_deviations(ds))))
-        # println()
-        # println("t: $t")
-        # println()
-
         if maximum(abs.(current_deviations(ds))) > alg.inftol
-            # return prev_step
             return prev_step, false
         end
-
-        # if maximum(abs.(current_state(ds))) > 500
-        #     println()
-        #     println("Now")
-        #     println()
-        #     # return prev_step
-        #     # println(0.01 * rand() + prev_step)
-        #     return 0.1 * rand() + prev_step
-        # end
         step!(ds, abs(t))
     end
 
-    # step!(ds, abs(T))
-
-    # println("finished1")
     Phi = current_deviations(ds)
     phi = current_state(ds)
 
@@ -119,7 +80,6 @@ function next_step(prev_step, ds, alg, dim)
 
     try
         Δ = A\b
-        # println("finished")
         return prev_step + alg.δ*Δ, true
     catch e
         if e isa SingularException
