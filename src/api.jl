@@ -111,7 +111,8 @@ function _distance(ds::ContinuousTimeDynamicalSystem, po1::PeriodicOrbit, po2::P
 end
 
 function _distance(u::AbstractVector{<:Real}, po::PeriodicOrbit)
-    norm(po.points - [u], -Inf)
+    # TODO check efficiency
+    norm(broadcast(.-, u, po.points), -Inf)
 end
 
 
