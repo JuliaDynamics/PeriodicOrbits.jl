@@ -36,10 +36,18 @@ A structure that contains information about a periodic orbit.
     `complete_orbit!` function.
     * `T` - the period of the orbit
 """
-struct PeriodicOrbit{U<:AbstractArray{<:Real}, R<:Real}
+mutable struct PeriodicOrbit{U<:AbstractArray{<:Real}, R<:Real}
     points::Vector{U}
     T::R
 end
+
+# constructors
+# points, period, Δt
+#     if complete with regard to delta t
+
+# if not complete complete it using ds
+# PO(ds, points, period, Δt)
+
 
 
 """
@@ -71,7 +79,7 @@ end
 
 
 """
-    is_complete(po::PeriodicOrbit, Δt=0.1) → true/false
+    is_complete(po::PeriodicOrbit, Δt=1) → true/false
 
 Return `true` if the periodic orbit `po` is complete, i.e. the number of points 
 in the orbit is equal to the period `po.T` for POs of discrete systems or `po.T/Δt` for 
@@ -146,7 +154,7 @@ function _true_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
 end
 
 function _true_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    throw("Function not implemented yet.")
+    return po.T
 end
 
 
@@ -167,6 +175,21 @@ function Base.in(u0::AbstractArray{Real}, po::PeriodicOrbit, atol=1e-6)
     end
 end
 
+function podistance(
+        po1, po2;
+        Tthres = 1e-3,
+        dthres = 1e-3,
+        distance = StrictlyMinimumDistance(true, metric)
+    )
+    # complete orbits if they are not complete
+    # first compare period
+    if abs(po1.period - po2.period) > Tthres
+        return false
+    end
+    # and then compare distance
+    d = set_distance(po1.points, po2.points, distance)
+    return d < dthres
+end
 
 """
     unique(ds::DynamicalSystem, pos::Vector{PeriodicOrbit}, atol=1e-6) → Vector{PeriodicOrbit}
