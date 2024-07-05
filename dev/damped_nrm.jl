@@ -7,13 +7,14 @@ using CairoMakie
     return SMatrix{3,3}(-p[1], p[2] - u[3], u[2], p[1], -1.0, u[1], 0.0, -u[1], -p[3])
 end
 
-begin
-    ds = Systems.lorenz()
-    alg = DampedNewtonRaphsonMees(δ=2^(-6), J=lorenz_jacob, maxiter=10000, disttol=1e-4)
-    traj, t = trajectory(ds, 10; Dt=0.5)
-    igs = InitialGuess[InitialGuess(x, 7*rand()) for x in traj]
-    pos = periodic_orbits(ds, alg, igs)
-end
+#%%
+ds = Systems.lorenz()
+alg = DampedNewtonRaphsonMees(δ=2^(-2), J=lorenz_jacob, maxiter=8000, disttol=1e-2)
+traj, t = trajectory(ds, 10; Dt=1.0)
+igs = InitialGuess[InitialGuess(x, 15*rand()) for x in traj]
+pos = periodic_orbits(ds, alg, igs)
+display(pos)
+reinit!(ds, traj[end])
 
 
 begin
