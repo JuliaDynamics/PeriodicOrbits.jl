@@ -5,7 +5,7 @@ export InitialGuess,
     complete_orbit,
     is_complete,
     podistance,
-    true_period,
+    minimal_period,
     uniquepos,
     stable,
     poequal,
@@ -129,22 +129,22 @@ function poequal( # better name maybe? isapprox?
 end
 
 """
-    true_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → po
+    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → po
 
-Compute the true (minimal) period of the periodic orbit `po` of the dynamical system `ds`.
-Returns the periodic orbit with the true period.
+Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
+Returns the periodic orbit with the minimal period.
 """
-function true_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
+function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
     type1 = isdiscretetime(ds)
     type2 = isdiscretetime(po)
     if type1 == type2
-        return _true_period(ds, po, atol)
+        return _minimal_period(ds, po, atol)
     else
         throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
     end
 end
 
-function _true_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
+function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
     u = po.points[1]
     for n in 1:po.T-1
         po.T % n != 0 && continue
@@ -157,8 +157,8 @@ function _true_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
     return po
 end
 
-function _true_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    # if we encounter an algorithm that would return PO with non-true period, we will implement this function
+function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
+    # if we encounter an algorithm that would return PO with non-minimal period, we will implement this function
     return po.T
 end
 
