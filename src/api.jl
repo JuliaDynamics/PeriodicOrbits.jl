@@ -176,18 +176,16 @@ By unique we mean that the distance between any two periodic orbits in the vecto
 greater than `atol`. To see details about the distance function, see `podistance`.
 """
 function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {D, B, R}
-    unique_pos = PeriodicOrbit[]
-    
-    filter(po -> begin
-        if all(unique_po -> podistance(unique_po, po) > atol, unique_pos)
-            push!(unique_pos, po)
-            true  # Keep this element
-        else
-            false  # Exclude this element
-        end
-    end, pos)
-    
-    unique_pos
+    length(pos) == 0 && return pos
+    unique_pos = typeof(pos[end])[]
+    pos = copy(pos)
+
+    while length(pos) > 0
+        push!(unique_pos, pop!(pos))
+        filter!(x -> podistance(x, unique_pos[end]) > atol, pos)
+    end
+
+    return unique_pos
 end
 
 function autodiff_jac(ds::DynamicalSystem)
