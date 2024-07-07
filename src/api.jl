@@ -8,7 +8,7 @@ export InitialGuess,
     true_period,
     uniquepos,
     stable,
-    equal,
+    poequal,
     periodic_orbit,
     periodic_orbits
 
@@ -75,7 +75,7 @@ end
 
 Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
 the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
-`po.T` time units with step `Δt`. For POs of discrete systems `Δt` must be equalt to `1`. 
+`po.T` time units with step `Δt`. For POs of discrete systems `Δt` must be equal to `1`. 
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
@@ -109,13 +109,13 @@ end
 
 
 """
-    equal(po1::PeriodicOrbit, po2::PeriodicOrbit; 
+    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; 
     Tthres=1e-3, dthres=1e-3, dist=StrictlyMinimumDistance(true, Euclidean())) → true/false
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
 Distance between the orbits is computed using the given distance function `distance`.
 """
-function equal( # better name maybe? isapprox?
+function poequal( # better name maybe? isapprox?
         po1::PeriodicOrbit, po2::PeriodicOrbit;
         Tthres = 1e-3,
         dthres = 1e-3,
