@@ -55,6 +55,11 @@ obtained by iterating the periodic point `T-1` times and the points are stored i
 Local stability of the periodic orbit is determined and stored in the `po.stable` field.
 For determining the stability, the Jacobian matrix `jac` is used. The default Jacobian is 
 obtained by automatic differentiation.
+
+## Keyword arguments
+
+* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation.
+
 """
 function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds))
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
@@ -81,6 +86,10 @@ end
 Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
 the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
 `po.T` time units with step `Δt`. For POs of discrete systems `Δt` must be equal to `1`. 
+
+## Keyword arguments
+
+* `Δt` : step size for continuous systems.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
@@ -119,8 +128,14 @@ end
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
 Distance between the orbits is computed using the given distance function `distance`.
+
+## Keyword arguments
+
+* `Tthres` : distance between periodic orbits must be less than this threshold
+* `dthres` : difference in periods of the periodic orbits must be less than this threshold
+* `distance` : distance function used to compute the distance between the periodic orbits
 """
-function poequal( # better name maybe? isapprox?
+function poequal(
         po1::PeriodicOrbit, po2::PeriodicOrbit;
         Tthres = 1e-3,
         dthres = 1e-3,
