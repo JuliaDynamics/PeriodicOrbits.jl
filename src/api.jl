@@ -93,7 +93,7 @@ end
 """
     distance(po1::PeriodicOrbit, po2::PeriodicOrbit, distance = StrictlyMinimumDistance(true, Euclidean())) → Real
 
-Computes the distance between two periodic orbits `po1` and `po2`. 
+Compute the distance between two periodic orbits `po1` and `po2`. 
 Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
 be either discrete or continuous.
 """
@@ -112,7 +112,7 @@ end
     equal(po1::PeriodicOrbit, po2::PeriodicOrbit; 
     Tthres=1e-3, dthres=1e-3, dist=StrictlyMinimumDistance(true, Euclidean())) → true/false
 
-Returns `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
+Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
 Distance between the orbits is computed using the given distance function `dist`.
 """
 function equal( # better name maybe? isapprox?
@@ -131,7 +131,7 @@ end
 """
     true_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → po
 
-Computes the true (minimal) period of the periodic orbit `po` of the dynamical system `ds`.
+Compute the true (minimal) period of the periodic orbit `po` of the dynamical system `ds`.
 Returns the periodic orbit with the true period.
 """
 function true_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
@@ -166,7 +166,7 @@ end
 """
     uniquepos(pos::Vector{PeriodicOrbit}, atol=1e-6) → Vector{PeriodicOrbit}
 
-Returns a vector of unique periodic orbits from the vector `pos` of periodic orbits.
+Return a vector of unique periodic orbits from the vector `pos` of periodic orbits.
 By unique we mean that the distance between any two periodic orbits in the vector is 
 greater than `atol`. To see details about the distance function, see `distance`.
 """
@@ -204,7 +204,7 @@ abstract type PeriodicOrbitFinder end
 """
     periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
 
-Tries to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
+Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
 function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds))
@@ -215,7 +215,7 @@ end
 """
     periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
 
-Tries to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
+Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
 function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = [InitialGuess(ds)])
