@@ -7,7 +7,7 @@ export InitialGuess,
     podistance,
     minimal_period,
     uniquepos,
-    stable,
+    isstable,
     poequal,
     periodic_orbit,
     periodic_orbits
@@ -187,11 +187,11 @@ end
 
 
 """
-    stable(ds::DynamicalSystem, po::PeriodicOrbit) → true/false
+    isstable(ds::DynamicalSystem, po::PeriodicOrbit) → true/false
 
 Determine the local stability of the periodic orbit `po`.
 """
-function stable(ds::DynamicalSystem, po::PeriodicOrbit; jac=autodiff_jac(ds))
+function isstable(ds::DynamicalSystem, po::PeriodicOrbit; jac=autodiff_jac(ds))
     throw("Function not implemented yet.")
 end
 
