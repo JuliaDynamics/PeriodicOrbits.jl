@@ -35,24 +35,29 @@ A structure that contains information about a periodic orbit.
      always holds the whole orbit. Given a point `u` in the periodic orbit,
     the rest of the orbit is obtained with `complete_orbit`. 
     * `T::Real` - the period of the orbit
+    * `stable::Bool` - local stability of the periodic orbit
 
 """
 struct PeriodicOrbit{D, B, R<:Real}
     points::StateSpaceSet{D, B}
     T::R
+    stable::Bool
 end
 
 """
-    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1) → po
+    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds)) → po
 
 Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
 the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
 In case of continuous dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
-`Δt` and the points are stored in `po.points`. In case of discrete dynamical systems, the orbit is obtained by iterating the
-periodic point `T` times and the points are stored in `po.points`.
+`Δt` and the points are stored in `po.points`. In case of discrete dynamical systems, the orbit is 
+obtained by iterating the periodic point `T-1` times and the points are stored in `po.points`.
+Local stability of the periodic orbit is determined and stored in the `po.stable` field.
+For determining the stability, the Jacobian matrix `jac` is used. The default Jacobian is 
+obtained by automatic differentiation.
 """
-function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1)
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T)
+function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds))
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
 end
 
 
@@ -185,14 +190,19 @@ function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {
     unique_pos
 end
 
+function autodiff_jac(ds::DynamicalSystem)
+    # TODO: where is this defined? Define if needed
+end
 
 """
-    isstable(ds::DynamicalSystem, po::PeriodicOrbit) → true/false
+    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false
 
-Determine the local stability of the periodic orbit `po`.
+Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
+using the jacobian `jac`.
 """
-function isstable(ds::DynamicalSystem, po::PeriodicOrbit; jac=autodiff_jac(ds))
-    throw("Function not implemented yet.")
+function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
+    # TODO: implement stability check
+    return false
 end
 
 
