@@ -207,7 +207,7 @@ abstract type PeriodicOrbitFinder end
 Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
-function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds))
+function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::InitialGuess = InitialGuess(ds))
     result::PeriodicOrbit
     return result
 end
