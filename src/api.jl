@@ -4,7 +4,7 @@ export InitialGuess,
     isdiscretetime,
     complete_orbit,
     is_complete,
-    distance,
+    podistance,
     true_period,
     uniquepos,
     stable,
@@ -91,13 +91,13 @@ end
 
 
 """
-    distance(po1::PeriodicOrbit, po2::PeriodicOrbit, distance = StrictlyMinimumDistance(true, Euclidean())) → Real
+    podistance(po1::PeriodicOrbit, po2::PeriodicOrbit, distance = StrictlyMinimumDistance(true, Euclidean())) → Real
 
 Compute the distance between two periodic orbits `po1` and `po2`. 
 Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
 be either discrete or continuous.
 """
-function distance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean()))
+function podistance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean()))
     type1 = isdiscretetime(po1)
     type2 = isdiscretetime(po2)
     if type1 == type2
@@ -113,18 +113,18 @@ end
     Tthres=1e-3, dthres=1e-3, dist=StrictlyMinimumDistance(true, Euclidean())) → true/false
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
-Distance between the orbits is computed using the given distance function `dist`.
+Distance between the orbits is computed using the given distance function `distance`.
 """
 function equal( # better name maybe? isapprox?
         po1::PeriodicOrbit, po2::PeriodicOrbit;
         Tthres = 1e-3,
         dthres = 1e-3,
-        dist = StrictlyMinimumDistance(true, Euclidean())
+        distance = StrictlyMinimumDistance(true, Euclidean())
     )
     if abs(po1.T - po2.T) > Tthres
         return false
     end
-    d = distance(po1, po2, dist)
+    d = podistance(po1, po2, distance)
     return d < dthres
 end
 
@@ -168,13 +168,13 @@ end
 
 Return a vector of unique periodic orbits from the vector `pos` of periodic orbits.
 By unique we mean that the distance between any two periodic orbits in the vector is 
-greater than `atol`. To see details about the distance function, see `distance`.
+greater than `atol`. To see details about the distance function, see `podistance`.
 """
 function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {D, B, R}
     unique_pos = PeriodicOrbit[]
     
     filter(po -> begin
-        if all(unique_po -> distance(unique_po, po) > atol, unique_pos)
+        if all(unique_po -> podistance(unique_po, po) > atol, unique_pos)
             push!(unique_pos, po)
             true  # Keep this element
         else

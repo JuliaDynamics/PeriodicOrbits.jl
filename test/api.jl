@@ -16,7 +16,7 @@ po1 = PeriodicOrbit(ds, u0, 3)
 po2 = PeriodicOrbit(ds, SVector{1}([0.99]), 3)
 po3 = po1
 isdiscretetime(po1)
-distance(po1, po2)
+podistance(po1, po2)
 equal(po1, po2)
 equal(po1, po3)
 po1 = PeriodicOrbit(ds, po1.points[1], po1.T*4)
