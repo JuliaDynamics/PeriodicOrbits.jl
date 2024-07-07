@@ -134,10 +134,18 @@ function poequal( # better name maybe? isapprox?
 end
 
 """
-    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → po
+    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → minT_po
 
 Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
-Returns the periodic orbit with the minimal period.
+Return the periodic orbit `minT_po` with the minimal period. 
+
+For discrete systems, a valid period would be any natural multiple of the minimal period. 
+Hence, all natural divisors of the period `po.T` are checked as a potential period. 
+A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
+and the final point is less than `atol`, the period of the orbit is `n`.
+
+For continuous systems, the minimal period check is not implemented yet. 
+The function returns a periodic orbit `minT_po` which a copy of input periodic orbit `po`.
 """
 function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
     type1 = isdiscretetime(ds)
@@ -156,7 +164,8 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
         reinit!(ds, u)
         step!(ds, n)
         if norm(u - current_state(ds)) < atol
-            return PeriodicOrbit(ds, u, n, 1)
+            minT_po = PeriodicOrbit(ds, u, n, 1)
+            return minT_po
         end
     end
     return po
@@ -164,7 +173,8 @@ end
 
 function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
     # if we encounter an algorithm that would return PO with non-minimal period, we will implement this function
-    return po.T
+    minT_po = po
+    return minT_po
 end
 
 
