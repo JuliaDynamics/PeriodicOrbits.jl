@@ -13,7 +13,7 @@ export InitialGuess,
     periodic_orbits
 
 import DynamicalSystemsBase
-using LinearAlgebra: norm
+using LinearAlgebra: norm, eigvals
 
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
@@ -188,7 +188,7 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
         reinit!(ds, u)
         step!(ds, n)
         if norm(u - current_state(ds)) < atol
-            minT_po = PeriodicOrbit(ds, u, n, 1)
+            minT_po = PeriodicOrbit(po.points, n, po.stable)
             return minT_po
         end
     end
@@ -231,10 +231,35 @@ end
 
 Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
 using the jacobian `jac`.
+
+For discrete systems, the stability is determined using eigenvalues of the jacobian of `T`-th 
+iterate of the dynamical system `ds` at the point `u0`. If the maximum absolute value of the eigenvalues 
+is less than `1`, the periodic orbit is marked as stable.
+
+For continuous systems, the stability check is not implemented yet.
 """
 function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
-    # TODO: implement stability check
-    return false
+    return _isstable(ds, u0, T, jac)
+end
+
+function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, jac)
+    # TODO: implement or IIP jacobians
+    T < 1 && throw(ArgumentError("Period must be a positive integer."))
+    reinit!(ds, u0)
+    J = jac(u0, current_parameters(ds), 0.0)
+
+    # this can be derived from chain rule
+    for _ in 2:T
+        J = jac(current_state(ds), current_parameters(ds), 0.0) * J
+        step!(ds, 1)
+    end
+
+    eigs = eigvals(Array(J))
+    return maximum(abs.(eigs)) < 1
+end
+
+function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
+    throw("Not implemented yet.")
 end
 
 
