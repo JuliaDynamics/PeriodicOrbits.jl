@@ -105,11 +105,16 @@ end
 
 
 """
-    podistance(po1::PeriodicOrbit, po2::PeriodicOrbit, distance = StrictlyMinimumDistance(true, Euclidean())) → Real
+    podistance(po1::PeriodicOrbit, po2::PeriodicOrbit, [, distance]) → Real
 
 Compute the distance between two periodic orbits `po1` and `po2`. 
 Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
 be either discrete or continuous.
+Distance between the periodic orbits is computed using the given distance function `distance`.
+The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
+Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
+For other options of the distance function, see `StateSpaceSets.set_distance`.
+Custom distance function can be provided as well.
 """
 function podistance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean()))
     type1 = isdiscretetime(po1)
@@ -123,17 +128,21 @@ end
 
 
 """
-    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; 
-    Tthres=1e-3, dthres=1e-3, dist=StrictlyMinimumDistance(true, Euclidean())) → true/false
+    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; Tthres=1e-3, dthres=1e-3, [, distance]) → true/false
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
-Distance between the orbits is computed using the given distance function `distance`.
 
 ## Keyword arguments
 
 * `Tthres` : distance between periodic orbits must be less than this threshold
 * `dthres` : difference in periods of the periodic orbits must be less than this threshold
 * `distance` : distance function used to compute the distance between the periodic orbits
+
+Distance between the orbits is computed using the given distance function `distance`.
+The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
+Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
+For other options of the distance function, see `StateSpaceSets.set_distance`.
+Custom distance function can be provided as well.
 """
 function poequal(
         po1::PeriodicOrbit, po2::PeriodicOrbit;
