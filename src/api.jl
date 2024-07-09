@@ -260,7 +260,8 @@ function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T
 end
 
 function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
-    throw("Not implemented yet.")
+    @warn "Stability check for continuous systems is not implemented yet. Returning false."
+    return false
 end
 
 
