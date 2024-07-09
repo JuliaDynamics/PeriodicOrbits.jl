@@ -188,7 +188,8 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
         reinit!(ds, u)
         step!(ds, n)
         if norm(u - current_state(ds)) < atol
-            minT_po = PeriodicOrbit(po.points, n, po.stable)
+            points = complete_orbit(ds, u, n; Δt=1)
+            minT_po = PeriodicOrbit(points, n, po.stable)
             return minT_po
         end
     end
