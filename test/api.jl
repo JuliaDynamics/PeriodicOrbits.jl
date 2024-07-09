@@ -1,3 +1,4 @@
+using Test
 using PeriodicOrbits
 
 function logistic(x0=0.4; r = 4.0)
@@ -6,69 +7,95 @@ end
 logistic_rule(x, p, n) = @inbounds SVector(p[1]*x[1]*(1 - x[1]))
 logistic_jacob(x, p, n) = @inbounds SMatrix{1,1}(p[1]*(1 - 2x[1]))
 
-#%%
-ds = logistic(r = 1+sqrt(8))
-ig = InitialGuess(ds)
-ig = InitialGuess(ds, 1.3)
-ig = InitialGuess(ds, 1)
-traj, t = trajectory(ds, 50, SVector{1}([0.5]))
-u0 = traj[end]
-jac = logistic_jacob
-po1 = PeriodicOrbit(ds, u0, 3; jac=jac)
-po2 = PeriodicOrbit(ds, SVector{1}([0.99]), 3; jac=jac)
-po3 = po1
-isdiscretetime(po1)
-podistance(po1, po2)
-poequal(po1, po2)
-poequal(po1, po3)
-po1 = PeriodicOrbit(ds, po1.points[1], po1.T*4; jac=jac)
-po4 = minimal_period(ds, po1)
-uniquepos([po1, po1, po2, po3, po4, po1], 1e-4)
-
-r = 2.3
-set_parameters!(ds, [r])
-@assert isstable(ds, SVector{1}([(r-1)/r]), 1, jac) == true
-
-r = 3.3
-set_parameters!(ds, [r])
-@assert isstable(ds, SVector{1}([(r-1)/r]), 1, jac) == false
-
-function henon_rule(u, p, n) # here `n` is "time", but we don't use it.
-    x, y = u # system state
-    a, b = p # system parameters
-    xn = 1.0 - a*x^2 + y
-    yn = b*x
-    return SVector(xn, yn)
+function lorenz(u0=[0.0, 10.0, 0.0]; σ = 10.0, ρ = 28.0, β = 8/3)
+    return CoupledODEs(lorenz_rule, u0, [σ, ρ, β])
 end
-henon_jacob(x, p, n) = SMatrix{2,2}(-2*p[1]*x[1], p[2], 1.0, 0.0)
-
-
-u0 = [0.2, 0.3]
-p0 = [1.4, 0.3]
-henon = DeterministicIteratedMap(henon_rule, u0, p0)
-
-isstable(henon, SVector{2}([0.2, 0.3]), 10, henon_jacob)
-
-
-function standardmap(u0=[0.001245, 0.00875]; k = 0.971635)
-    return DeterministicIteratedMap(standardmap_rule, u0, [k])
+@inbounds function lorenz_rule(u, p, t)
+    du1 = p[1]*(u[2]-u[1])
+    du2 = u[1]*(p[2]-u[3]) - u[2]
+    du3 = u[1]*u[2] - p[3]*u[3]
+    return SVector{3}(du1, du2, du3)
 end
-@inbounds function standardmap_rule(x, par, n)
-    theta = x[1]; p = x[2]
-    p += par[1]*sin(theta)
-    theta += p
-    while theta >= 2π; theta -= 2π; end
-    while theta < 0; theta += 2π; end
-    while p >= 2π; p -= 2π; end
-    while p < 0; p += 2π; end
-    return SVector(theta, p)
+@inbounds function lorenz_jacob(u, p, t)
+        return SMatrix{3,3}(-p[1], p[2] - u[3], u[2], p[1], -1.0, u[1], 0.0, -u[1], -p[3])
 end
-@inbounds standardmap_jacob(x, p, n) = SMatrix{2,2}(
-    1 + p[1]*cos(x[1]), p[1]*cos(x[1]), 1, 1
-)
 
-smap = standardmap()
-@assert isstable(smap, SVector(π, 0), 1, standardmap_jacob) == true
-@assert isstable(smap, SVector(π, 0), 10, standardmap_jacob) == true
-@assert isstable(smap, SVector(0, 0), 1, standardmap_jacob) == false
-@assert isstable(smap, SVector(0, 0), 10, standardmap_jacob) == false
+
+const logistic_ = logistic()
+const lorenz_ = lorenz()
+const period3window = Dataset([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
+
+@testset "constructors of InitialGuess" begin
+    # TODO
+end
+
+@testset "constructors of PeriodicOrbit" begin
+    # TODO
+end
+
+@testset "stability discrete" begin
+    r = 2.3
+    set_parameters!(logistic_, [r])
+    fp = isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob)
+    @test fp == true
+    @test typeof(fp) == Bool
+
+    r = 3.3
+    set_parameters!(logistic_, [r])
+    @test isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob) == false
+
+    r = 1+sqrt(8)
+    set_parameters!(logistic_, [r])
+    @test isstable(logistic_, period3window[1], 3, logistic_jacob) == true
+end
+
+@testset "complete orbit" begin
+    r = 1+sqrt(8)
+    set_parameters!(logistic_, [r])
+    completed_orbit = complete_orbit(logistic_, period3window[1], 3)
+    @test completed_orbit == period3window
+    @test typeof(completed_orbit) <: StateSpaceSet
+end
+
+@testset "minimal_period" begin
+    r = 1+sqrt(8)
+    set_parameters!(logistic_, [r])
+    k = 4
+    po = PeriodicOrbit(logistic_, period3window[1], k*3; jac=logistic_jacob)
+    po = minimal_period(logistic_, po)
+    @test po.T == 3 == length(po.points)
+end
+
+@testset "unique POs" begin
+    r = 1+sqrt(8)
+    set_parameters!(logistic_, [r])
+    po1 = PeriodicOrbit(logistic_, period3window[1], 3; jac=logistic_jacob)
+    po2 = po1
+    po3 = PeriodicOrbit(logistic_, SVector{1}([(r-1)/r]), 1; jac=logistic_jacob)
+
+    # use Set to neglect order
+    uniquepo = Set(uniquepos([po1, po2, po3], 1e-4))
+    reference = Set([po1, po3])
+    @test uniquepo == reference
+end
+
+@testset "PO equality & distance" begin
+    set_parameters!(logistic_, [3.5])
+    po1 = PeriodicOrbit(logistic_, SVector(0.3), 3; jac=logistic_jacob)
+    po2 = PeriodicOrbit(logistic_, SVector(0.6), 3; jac=logistic_jacob)
+
+    @test poequal(po1, po1) == true
+    @test poequal(po1, po2) == false
+
+    @test podistance(po1, po1) ≈ 0.0
+    @test podistance(po1, po2) > 0.0
+end
+
+@testset "PO type" begin
+    r = 1.0
+    po = PeriodicOrbit(logistic_, SVector{1}([(r-1)/r]), 1; jac=logistic_jacob)
+    @test isdiscretetime(po) == true
+
+    po = PeriodicOrbit(lorenz_, current_state(lorenz_), 1.0; jac=lorenz_jacob)
+    @test isdiscretetime(po) == false
+end
