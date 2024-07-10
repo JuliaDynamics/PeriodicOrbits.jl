@@ -1,5 +1,4 @@
 using PeriodicOrbits
-using CairoMakie
 
 function lorenz(u0=[0.0, 10.0, 0.0]; σ = 10.0, ρ = 28.0, β = 8/3)
     return CoupledODEs(lorenz_rule, u0, [σ, ρ, β], diffeq = (abstol = 1e-16, reltol = 1e-16))
@@ -15,7 +14,7 @@ end
 end
 
 #%%
-ds = lorenz()
+ds = lorenz(SVector(1.0, 10.0, 3.0))
 alg = DampedNewtonRaphsonMees(δ=2^(-2), J=lorenz_jacob, maxiter=8000, disttol=1e-2)
 traj, t = trajectory(ds, 4; Dt=1.0)
 igs = InitialGuess[InitialGuess(x, 10*rand()) for x in traj]
