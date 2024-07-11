@@ -1,8 +1,10 @@
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterCitations = "daee34ce-89f3-4625-b898-19384cb65244"
 DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
 DynamicalSystemsBase = "6e36e845-645a-534a-86f2-f5d4aa5a06b4"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 PeriodicOrbits = "41be5fce-5647-450b-ae37-a6739b881a1c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StateSpaceSets = "40b095a5-5852-4c12-98c7-d43bf788e795"
