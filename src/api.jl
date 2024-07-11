@@ -40,7 +40,7 @@ A structure that contains information about a periodic orbit.
 struct PeriodicOrbit{D, B, R<:Real}
     points::StateSpaceSet{D, B}
     T::R
-    stable::Bool
+    stable::Union{Bool, Missing}
 end
 
 """
@@ -196,7 +196,7 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
 end
 
 function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    # if we encounter an algorithm that would return PO with non-minimal period, we will implement this function
+    # TODO
     minT_po = po
     return minT_po
 end
@@ -227,22 +227,24 @@ function autodiff_jac(ds::DynamicalSystem)
 end
 
 """
-    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false
+    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false/missing
 
 Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
-using the jacobian `jac`.
+using the jacobian `jac`. Returns `true` if the periodic orbit is stable, `false` if it is unstable.
 
 For discrete systems, the stability is determined using eigenvalues of the jacobian of `T`-th 
 iterate of the dynamical system `ds` at the point `u0`. If the maximum absolute value of the eigenvalues 
 is less than `1`, the periodic orbit is marked as stable.
 
 For continuous systems, the stability check is not implemented yet.
+
+For systems where stability cannot be determined, the function returns `missing`.
 """
 function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
     return _isstable(ds, u0, T, jac)
 end
 
-function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, jac)
+function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::Integer, jac)
     # TODO: implement or IIP jacobians
     T < 1 && throw(ArgumentError("Period must be a positive integer."))
     reinit!(ds, u0)
@@ -256,6 +258,10 @@ function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T
 
     eigs = eigvals(Array(J))
     return maximum(abs.(eigs)) < 1
+end
+
+function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
+    missing
 end
 
 function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
