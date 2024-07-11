@@ -1,26 +1,39 @@
+using Test
 using PeriodicOrbits
-using CairoMakie
+using OrdinaryDiffEq: RKO65
+using LinearAlgebra: norm
 
-@inbounds function roessler_rule(u, p, t)
-    du1 = -u[2]-u[3]
-    du2 = u[1] + p[1]*u[2]
-    du3 = p[2] + u[3]*(u[1] - p[3])
+@inbounds function lorenz_rule(u, p, t)
+    du1 = p[1]*(u[2]-u[1])
+    du2 = u[1]*(p[2]-u[3]) - u[2]
+    du3 = u[1]*u[2] - p[3]*u[3]
     return SVector{3}(du1, du2, du3)
 end
-function roessler_jacob(u, p, t)
-    return SMatrix{3,3}(0.0,1.0,u[3],-1.0,p[1],0.0,-1.0,0.0,u[1]-p[3])          
+
+@testset "Optimized shooting" begin
+    ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [10.0,  28.0, 8/3])
+    igs = [InitialGuess(SVector(1.0, 2.0, 5.0), 4.2), InitialGuess(SVector(1.0, 2.0, 5.0), 5.2)]
+    ig = igs[1]
+    alg = OptimizedShooting(Δt=1e-3, p=3, abstol=1e-6, optim_kwargs=(f_tol=1e-10,))
+    ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [σ, ρ, β]; diffeq = (alg=RKO65(), abstol = 1e-14, reltol = 1e-14, dt=alg.Δt))
+    res = periodic_orbit(ds, alg, ig)
+    @test !isnothing(res)
+
+    ds2 = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [σ, ρ, β]; diffeq = (alg=RKO65(), abstol = 1e-14, reltol = 1e-14, dt=1e-6)) # initialize again with smaller step size
+    u0 = res.points[1]
+    T = res.T
+    reinit!(ds2, u0)
+    step!(ds2, T)
+    @test norm(current_state(ds2) - u0) <= 1e-2 # these POs are unstable and so the trajectories are diverging
+
+    res = periodic_orbits(ds, alg, igs)
+    @test length(res) == 2
+
+    for po in res
+        u0 = po.points[1]
+        T = po.T
+        reinit!(ds2, u0)
+        step!(ds2, T)
+        @test norm(current_state(ds2) - u0) <= 1e-2
+    end
 end
-
-#%%
-a = 0.15; b=0.2; c=3.5
-ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [a, b, c]; diffeq = (abstol = 1e-16, reltol = 1e-16))
-u0 = SVector(2.6286556703142154, 3.5094562051716300, 3.0000000000000000)
-T = 5.9203402481939138
-traj, t = trajectory(ds, T, u0; Dt = 0.01)
-
-
-#%%
-fig = Figure()
-ax = Axis3(fig[1,1], azimuth = 1.3 * pi)
-lines!(ax, traj[:, 1], traj[:, 2], traj[:, 3], color = :blue)
-display(fig)
