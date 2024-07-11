@@ -276,18 +276,18 @@ Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic 
 abstract type PeriodicOrbitFinder end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds)) → PeriodicOrbit
 
-Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
+Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
-function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::InitialGuess = InitialGuess(ds))
+function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
     result::PeriodicOrbit
     return result
 end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
 
 Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
