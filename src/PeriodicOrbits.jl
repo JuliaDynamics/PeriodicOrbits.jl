@@ -6,5 +6,6 @@ using Reexport
 
 # exports:
 include("api.jl")
+include("algorithms/optimized_shooting.jl")
 
 end
