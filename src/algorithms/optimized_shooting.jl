@@ -12,10 +12,8 @@ to find periodic orbits of continuous systems.
 ## Keyword arguments
 - `Δt::Float64=1e-6`: explicit ODE solver time step. This should correspond to the time step used in the ODE solver specified in the `CoupledODEs` object.
 - `p::Int64=2`: `p*dimension(ds)` is the number of points in the residual `R`.
-- `optim_kwargs::NamedTuple=(x_tol=1e-10,)`: keyword arguments to pass to the optimizer. 
-The optimizer used is the optimize(_, _, LevenbergMarquardt(); optim_kwargs...) from `LeastSquaresOptim.jl`. For details on the keywords see the respective package documentation.
-- `abstol::Float64=1e-3` : absolute tolerance for sum of squares `ssr` of the residual `R`. 
-The method converged if `ssr <= abstol`.
+- `optim_kwargs::NamedTuple=(x_tol=1e-10,)`: keyword arguments to pass to the optimizer. The optimizer used is the `optimize` from `LeastSquaresOptim.jl`. For details on the keywords see the respective package documentation.
+- `abstol::Float64=1e-3` : absolute tolerance for sum of squares `ssr` of the residual `R`. The method converged if `ssr <= abstol`.
 
 ## Description
 
@@ -30,19 +28,18 @@ can be rewritten in terms of the dimensionless time ``\\tau = t/T`` as
 ```math
 \\frac{dx}{dt} = Tf(x, p, T\\tau)
 ```
-where `T` is a period of some periodic orbit. The boundary conditions for the 
+where ``T`` is a period of some periodic orbit. The boundary conditions for the 
 periodic orbit now are ``x(\\tau = 0) = x(\\tau = 1)``. Dednam and Botha [Dednam2014](@cite) 
-suggest minimizing the residual `R` defined as 
+suggest minimizing the residual ``R`` defined as 
 
 ```math
 R = (x(1)-x(0), x(1+\\Delta \\tau)-x(\\Delta \\tau), ..., x(1+(p-1)\\Delta \\tau)-x((p-1)\\Delta \\tau))
 ```
 
-Authors suggest to minimize this residual with respect to `x(0)` and `T` using 
- Levenberg-Marquardt optimization.
+ with respect to ``x(0)`` and ``T`` using Levenberg-Marquardt optimization.
 
-In our implementation keyword argument `p` corresponds to `p` in the residual `R`. 
-The keyword argument `Δt` corresponds to `\\Delta \\tau` in the residual `R`.
+In our implementation keyword argument `p` corresponds to ``p`` in the residual ``R``. 
+The keyword argument `Δt` corresponds to ``\\Delta \\tau`` in the residual ``R``.
 
 ## Important note
 
