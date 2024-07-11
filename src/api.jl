@@ -44,7 +44,7 @@ struct PeriodicOrbit{D, B, R<:Real}
 end
 
 """
-    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds)) → po
+    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; kwargs...) → po
 
 Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
 the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
@@ -80,7 +80,7 @@ end
 
 
 """
-    complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1) → StateSpaceSet
+    complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
 Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
 the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
@@ -127,7 +127,7 @@ end
 
 
 """
-    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; Tthres=1e-3, dthres=1e-3, [, distance]) → true/false
+    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; kwargs...) → true/false
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
 
