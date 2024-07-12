@@ -40,11 +40,11 @@ A structure that contains information about a periodic orbit.
 struct PeriodicOrbit{D, B, R<:Real}
     points::StateSpaceSet{D, B}
     T::R
-    stable::Bool
+    stable::Union{Bool, Missing}
 end
 
 """
-    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds)) → po
+    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; kwargs...) → po
 
 Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
 the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
@@ -80,7 +80,7 @@ end
 
 
 """
-    complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1) → StateSpaceSet
+    complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
 Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
 the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
@@ -127,7 +127,7 @@ end
 
 
 """
-    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; Tthres=1e-3, dthres=1e-3, [, distance]) → true/false
+    poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; kwargs...) → true/false
 
 Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
 
@@ -196,7 +196,7 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
 end
 
 function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    # if we encounter an algorithm that would return PO with non-minimal period, we will implement this function
+    # TODO
     minT_po = po
     return minT_po
 end
@@ -227,22 +227,24 @@ function autodiff_jac(ds::DynamicalSystem)
 end
 
 """
-    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false
+    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false/missing
 
 Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
-using the jacobian `jac`.
+using the jacobian `jac`. Returns `true` if the periodic orbit is stable, `false` if it is unstable.
 
 For discrete systems, the stability is determined using eigenvalues of the jacobian of `T`-th 
 iterate of the dynamical system `ds` at the point `u0`. If the maximum absolute value of the eigenvalues 
 is less than `1`, the periodic orbit is marked as stable.
 
 For continuous systems, the stability check is not implemented yet.
+
+For systems where stability cannot be determined, the function returns `missing`.
 """
 function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
     return _isstable(ds, u0, T, jac)
 end
 
-function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, jac)
+function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::Integer, jac)
     # TODO: implement or IIP jacobians
     T < 1 && throw(ArgumentError("Period must be a positive integer."))
     reinit!(ds, u0)
@@ -258,6 +260,10 @@ function _isstable(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T
     return maximum(abs.(eigs)) < 1
 end
 
+function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
+    missing
+end
+
 function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
     @warn "Stability check for continuous systems is not implemented yet. Returning false."
     return false
@@ -270,18 +276,18 @@ Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic 
 abstract type PeriodicOrbitFinder end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds)) → PeriodicOrbit
 
-Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
+Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
-function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::InitialGuess = InitialGuess(ds))
+function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
     result::PeriodicOrbit
     return result
 end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → po
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
 
 Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
