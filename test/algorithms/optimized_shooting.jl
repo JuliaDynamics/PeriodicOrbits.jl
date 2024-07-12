@@ -14,12 +14,12 @@ end
     ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [10.0, 28.0, 8 / 3])
     igs = [InitialGuess(SVector(1.0, 2.0, 5.0), 4.2), InitialGuess(SVector(1.0, 2.0, 5.0), 5.2)]
     ig = igs[1]
-    alg = OptimizedShooting(Δt=1e-3, p=3, abstol=1e-6, optim_kwargs=(f_tol=1e-10,))
-    ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [σ, ρ, β]; diffeq=(alg=RKO65(), abstol=1e-14, reltol=1e-14, dt=alg.Δt))
+    alg = OptimizedShooting(Δt=1e-3, n=3, abstol=1e-6, optim_kwargs=(f_tol=1e-10,))
+    ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [10.0, 28.0, 8 / 3]; diffeq=(alg=RKO65(), abstol=1e-14, reltol=1e-14, dt=alg.Δt))
     res = periodic_orbit(ds, alg, ig)
     @test !isnothing(res)
 
-    ds2 = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [σ, ρ, β]; diffeq=(alg=RKO65(), abstol=1e-14, reltol=1e-14, dt=1e-6)) # initialize again with smaller step size
+    ds2 = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [10.0, 28.0, 8 / 3]; diffeq=(alg=RKO65(), abstol=1e-14, reltol=1e-14, dt=1e-6)) # initialize again with smaller step size
     u0 = res.points[1]
     T = res.T
     reinit!(ds2, u0)

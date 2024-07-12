@@ -11,7 +11,7 @@ to find periodic orbits of continuous systems.
 
 ## Keyword arguments
 - `Δt::Float64 = 1e-6`: explicit ODE solver time step. This should correspond to the time step used in the ODE solver specified in the `CoupledODEs` object.
-- `p::Int64 = 2`: `p*dimension(ds)` is the number of points in the residual `R`.
+- `n::Int64 = 2`: `n*dimension(ds)` is the number of points in the residual `R`.
 - `optim_kwargs::NamedTuple = (x_tol=1e-10,)`: keyword arguments to pass to the optimizer. The optimizer used is the `optimize` from `LeastSquaresOptim.jl`. For details on the keywords see the respective package documentation.
 - `abstol::Float64 = 1e-3` : absolute tolerance for sum of squares `ssr` of the residual `R`. The method converged if `ssr <= abstol`.
 
@@ -33,12 +33,12 @@ periodic orbit now are ``x(\\tau = 0) = x(\\tau = 1)``. Dednam and Botha [Dednam
 suggest minimizing the residual ``R`` defined as 
 
 ```math
-R = (x(1)-x(0), x(1+\\Delta \\tau)-x(\\Delta \\tau), ..., x(1+(p-1)\\Delta \\tau)-x((p-1)\\Delta \\tau))
+R = (x(1)-x(0), x(1+\\Delta \\tau)-x(\\Delta \\tau), ..., x(1+(n-1)\\Delta \\tau)-x((n-1)\\Delta \\tau))
 ```
 
  with respect to ``x(0)`` and ``T`` using Levenberg-Marquardt optimization.
 
-In our implementation keyword argument `p` corresponds to ``p`` in the residual ``R``. 
+In our implementation keyword argument `n` corresponds to ``n`` in the residual ``R``. 
 The keyword argument `Δt` corresponds to ``\\Delta \\tau`` in the residual ``R``.
 
 ## Important note
@@ -47,7 +47,7 @@ For now we recommed using the `RKO65` ODE solver and setting the stepsize `dt` t
 same as `Δt`. For example
 
 ```
-alg = OptimizedShooting(Δt=1/(2^6), p=3)
+alg = OptimizedShooting(Δt=1/(2^6), n=3)
 ds = CoupledODEs(dynamic_rule, state, params; diffeq = (alg=RKO65(), dt=alg.Δt))
 ```
 
@@ -56,7 +56,7 @@ Using other ODE solvers may lead to divergence.
 """
 @kwdef struct OptimizedShooting <: PeriodicOrbitFinder
     Δt::Float64 = 1e-6
-    p::Int64 = 2
+    n::Int64 = 2
     optim_kwargs::NamedTuple = (x_tol=1e-10,)
     abstol::Float64 = 1e-3
 end
@@ -94,18 +94,18 @@ function costfunc(v, ds, alg)
     f = dynamic_rule(ds)
     nds = CoupledODEs(new_rule(f, T), current_state(ds), current_parameters(ds); diffeq=ds.diffeq)
 
-    len = alg.p * dimension(ds)
+    len = alg.n * dimension(ds)
     u1s = zeros(len)
     u2s = zeros(len)
     err = zeros(len)
 
-    for i in 0:alg.p-1
+    for i in 0:alg.n-1
         reinit!(nds, u0)
         step!(nds, i * alg.Δt * 1)
         u1 = current_state(nds)
         u1s[i*dimension(ds)+1:(i+1)*dimension(ds)] .= u1
     end
-    for i in 0:alg.p-1
+    for i in 0:alg.n-1
         reinit!(nds, u0)
         step!(nds, 1 + i * alg.Δt * 1)
         u2 = current_state(nds)
