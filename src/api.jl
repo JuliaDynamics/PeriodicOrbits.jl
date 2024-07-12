@@ -1,5 +1,5 @@
-export InitialGuess, 
-    PeriodicOrbit, 
+export InitialGuess,
+    PeriodicOrbit,
     PeriodicOrbitFinder,
     isdiscretetime,
     complete_orbit,
@@ -20,7 +20,7 @@ A structure that contains an initial guess for a periodic orbit detection algori
     * `u0` - guess of a point in the periodic orbit
     * `T` - guess of period of the orbit
 """
-struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
+struct InitialGuess{U<:AbstractArray{<:Real},R<:Union{Real,Nothing}}
     u0::U
     T::R
 end
@@ -37,10 +37,10 @@ A structure that contains information about a periodic orbit.
     * `stable::Bool` - local stability of the periodic orbit
 
 """
-struct PeriodicOrbit{D, B, R<:Real}
-    points::StateSpaceSet{D, B}
+struct PeriodicOrbit{D,B,R<:Real}
+    points::StateSpaceSet{D,B}
     T::R
-    stable::Union{Bool, Missing}
+    stable::Union{Bool,Missing}
 end
 
 """
@@ -71,10 +71,10 @@ end
 Return `true` if the periodic orbit belongs to a discrete dynamical system
 `false` if it belongs to a continuous dynamical system.
 """
-function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D, B, R}) where {D, B, R <: Integer}
+function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:Integer}
     true
 end
-function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D, B, R}) where {D, B, R <: AbstractFloat}
+function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:AbstractFloat}
     false
 end
 
@@ -92,11 +92,11 @@ the periodic point `po.T` times. For POs of continuous systems, it means integra
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
-    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete systems")) 
+    isdiscrete && Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete systems"))
     traj, _ = trajectory(
-        ds, 
-        isdiscrete ? T-1 : T, 
-        u0; 
+        ds,
+        isdiscrete ? T - 1 : T,
+        u0;
         Δt=Δt
     )
     return traj
@@ -115,7 +115,7 @@ Euclidean distance between any pair of points where one point belongs to `po1` a
 For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
-function podistance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean()))
+function podistance(po1, po2, distance=StrictlyMinimumDistance(true, Euclidean()))
     type1 = isdiscretetime(po1)
     type2 = isdiscretetime(po2)
     if type1 == type2
@@ -144,11 +144,11 @@ For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
 function poequal(
-        po1::PeriodicOrbit, po2::PeriodicOrbit;
-        Tthres = 1e-3,
-        dthres = 1e-3,
-        distance = StrictlyMinimumDistance(true, Euclidean())
-    )
+    po1::PeriodicOrbit, po2::PeriodicOrbit;
+    Tthres=1e-3,
+    dthres=1e-3,
+    distance=StrictlyMinimumDistance(true, Euclidean())
+)
     if abs(po1.T - po2.T) > Tthres
         return false
     end
@@ -209,7 +209,7 @@ Return a vector of unique periodic orbits from the vector `pos` of periodic orbi
 By unique we mean that the distance between any two periodic orbits in the vector is 
 greater than `atol`. To see details about the distance function, see `podistance`.
 """
-function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {D, B, R}
+function uniquepos(pos::Vector{PeriodicOrbit{D,B,R}}, atol::Real=1e-6) where {D,B,R}
     length(pos) == 0 && return pos
     unique_pos = typeof(pos[end])[]
     pos = copy(pos)
@@ -281,7 +281,7 @@ abstract type PeriodicOrbitFinder end
 Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
-function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
+function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess=InitialGuess(ds))
     result::PeriodicOrbit
     return result
 end
@@ -292,7 +292,7 @@ end
 Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
 For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
 """
-function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = [InitialGuess(ds)])
+function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess}=[InitialGuess(ds)])
     result::Vector{PeriodicOrbit}
     return result
 end

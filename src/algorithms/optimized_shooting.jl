@@ -62,7 +62,7 @@ Using other ODE solvers may lead to divergence.
 end
 
 function new_rule(rule, T)
-    return (u, p, t) -> T*rule(u, p, T*t)
+    return (u, p, t) -> T * rule(u, p, T * t)
 end
 
 function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
@@ -92,7 +92,7 @@ function costfunc(v, ds, alg)
     T = v[end]
 
     f = dynamic_rule(ds)
-    nds = CoupledODEs(new_rule(f, T), current_state(ds), current_parameters(ds); diffeq = ds.diffeq)
+    nds = CoupledODEs(new_rule(f, T), current_state(ds), current_parameters(ds); diffeq=ds.diffeq)
 
     len = alg.p * dimension(ds)
     u1s = zeros(len)
@@ -101,15 +101,15 @@ function costfunc(v, ds, alg)
 
     for i in 0:alg.p-1
         reinit!(nds, u0)
-        step!(nds, i*alg.Δt*1)
+        step!(nds, i * alg.Δt * 1)
         u1 = current_state(nds)
-        u1s[i*dimension(ds) + 1 : (i+1)*dimension(ds)] .= u1
+        u1s[i*dimension(ds)+1:(i+1)*dimension(ds)] .= u1
     end
     for i in 0:alg.p-1
         reinit!(nds, u0)
-        step!(nds, 1 + i*alg.Δt*1)
+        step!(nds, 1 + i * alg.Δt * 1)
         u2 = current_state(nds)
-        u2s[i*dimension(ds) + 1 : (i+1)*dimension(ds)] .= u2
+        u2s[i*dimension(ds)+1:(i+1)*dimension(ds)] .= u2
     end
     err = u2s .- u1s
     return err
