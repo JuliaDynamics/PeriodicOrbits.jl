@@ -10,10 +10,10 @@ A shooting method [Dednam2014](@cite) combined with Levenberg-Marquardt optimiza
 to find periodic orbits of continuous systems.
 
 ## Keyword arguments
-- `Δt::Float64=1e-6`: explicit ODE solver time step. This should correspond to the time step used in the ODE solver specified in the `CoupledODEs` object.
-- `p::Int64=2`: `p*dimension(ds)` is the number of points in the residual `R`.
-- `optim_kwargs::NamedTuple=(x_tol=1e-10,)`: keyword arguments to pass to the optimizer. The optimizer used is the `optimize` from `LeastSquaresOptim.jl`. For details on the keywords see the respective package documentation.
-- `abstol::Float64=1e-3` : absolute tolerance for sum of squares `ssr` of the residual `R`. The method converged if `ssr <= abstol`.
+- `Δt::Float64 = 1e-6`: explicit ODE solver time step. This should correspond to the time step used in the ODE solver specified in the `CoupledODEs` object.
+- `p::Int64 = 2`: `p*dimension(ds)` is the number of points in the residual `R`.
+- `optim_kwargs::NamedTuple = (x_tol=1e-10,)`: keyword arguments to pass to the optimizer. The optimizer used is the `optimize` from `LeastSquaresOptim.jl`. For details on the keywords see the respective package documentation.
+- `abstol::Float64 = 1e-3` : absolute tolerance for sum of squares `ssr` of the residual `R`. The method converged if `ssr <= abstol`.
 
 ## Description
 
@@ -55,10 +55,10 @@ Using other ODE solvers may lead to divergence.
 
 """
 @kwdef struct OptimizedShooting <: PeriodicOrbitFinder
-    Δt ::Float64 = 1e-6
-    p :: Int64 = 2
-    optim_kwargs :: NamedTuple = (x_tol=1e-10,)
-    abstol :: Float64 = 1e-3
+    Δt::Float64 = 1e-6
+    p::Int64 = 2
+    optim_kwargs::NamedTuple = (x_tol=1e-10,)
+    abstol::Float64 = 1e-3
 end
 
 function new_rule(rule, T)
