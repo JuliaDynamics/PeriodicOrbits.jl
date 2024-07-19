@@ -1,6 +1,7 @@
 export periodic_orbit, periodic_orbits, OptimizedShooting
 
 using LeastSquaresOptim: optimize, LevenbergMarquardt
+using OrdinaryDiffEq
 
 
 """
@@ -52,17 +53,12 @@ ds = CoupledODEs(dynamic_rule, state, params; diffeq = (alg=RKO65(), dt=alg.Δt)
 ```
 Other recommended solvers are `Anas5`, `RKM` and `MSRK6`.
 Using other ODE solvers may lead to divergence.
-
 """
 @kwdef struct OptimizedShooting <: PeriodicOrbitFinder
     Δt::Float64 = 1e-6
     n::Int64 = 2
     optim_kwargs::NamedTuple = (x_tol=1e-10,)
     abstol::Float64 = 1e-3
-end
-
-function new_rule(rule, T)
-    return (u, p, t) -> T * rule(u, p, T * t)
 end
 
 function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
@@ -94,23 +90,25 @@ function costfunc(v, ds, alg)
     f = dynamic_rule(ds)
     nds = CoupledODEs(new_rule(f, T), current_state(ds), current_parameters(ds); diffeq=ds.diffeq)
 
-    len = alg.n * dimension(ds)
-    u1s = zeros(len)
-    u2s = zeros(len)
-    err = zeros(len)
-
-    for i in 0:alg.n-1
-        reinit!(nds, u0)
-        step!(nds, i * alg.Δt * 1)
-        u1 = current_state(nds)
-        u1s[i*dimension(ds)+1:(i+1)*dimension(ds)] .= u1
-    end
-    for i in 0:alg.n-1
-        reinit!(nds, u0)
-        step!(nds, 1 + i * alg.Δt * 1)
-        u2 = current_state(nds)
-        u2s[i*dimension(ds)+1:(i+1)*dimension(ds)] .= u2
-    end
-    err = u2s .- u1s
+    R1 = compute_residual(nds, u0, alg.Δt, alg.n, 0)
+    R2 = compute_residual(nds, u0, alg.Δt, alg.n, 1)
+    err = R2 .- R1
     return err
+end
+
+function compute_residual(nds, u0, Δt, n, t0)
+    len = n * dimension(nds)
+    R = zeros(len)
+
+    reinit!(nds, u0)
+    step!(nds, t0)
+    for i in 0:n-1
+        R[i*dimension(nds)+1:(i+1)*dimension(nds)] .= current_state(nds)
+        step!(nds, Δt)
+    end
+    return R
+end
+
+function new_rule(rule, T)
+    return (u, p, t) -> T * rule(u, p, T * t)
 end
