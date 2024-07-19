@@ -27,7 +27,7 @@ Continuous dynamical system
 can be rewritten in terms of the dimensionless time ``\\tau = t/T`` as
 
 ```math
-\\frac{dx}{dt} = Tf(x, p, T\\tau)
+\\frac{dx}{d\\tau} = Tf(x, p, T\\tau)
 ```
 where ``T`` is a period of some periodic orbit. The boundary conditions for the 
 periodic orbit now are ``x(\\tau = 0) = x(\\tau = 1)``. Dednam and Botha [Dednam2014](@cite) 
