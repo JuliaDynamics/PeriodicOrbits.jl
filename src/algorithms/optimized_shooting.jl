@@ -50,7 +50,7 @@ same as `Δt`. For example
 alg = OptimizedShooting(Δt=1/(2^6), n=3)
 ds = CoupledODEs(dynamic_rule, state, params; diffeq = (alg=RKO65(), dt=alg.Δt))
 ```
-
+Other recommended solvers are `Anas5`, `RKM` and `MSRK6`.
 Using other ODE solvers may lead to divergence.
 
 """
