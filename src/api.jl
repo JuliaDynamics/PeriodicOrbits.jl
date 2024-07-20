@@ -245,7 +245,7 @@ function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
 end
 
 function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::Integer, jac)
-    # TODO: implement or IIP jacobians
+    # TODO: implement for IIP jacobians
     T < 1 && throw(ArgumentError("Period must be a positive integer."))
     reinit!(ds, u0)
     J = jac(u0, current_parameters(ds), 0.0)
@@ -265,8 +265,12 @@ function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
 end
 
 function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
-    @warn "Stability check for continuous systems is not implemented yet. Returning false."
-    return false
+    # TODO: implement for IIP jacobians
+    tands = TangentDynamicalSystem(ds, u0=u0)
+    step!(tands, T)
+    monodromy = current_deviations(tands)
+    floq_muls = eigvals(monodromy)
+    return maximum(abs.(floq_muls)) < 1
 end
 
 
