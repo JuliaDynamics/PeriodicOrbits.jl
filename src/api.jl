@@ -12,7 +12,7 @@ export InitialGuess,
     periodic_orbits
 
 import DynamicalSystemsBase
-using LinearAlgebra: norm, eigvals
+using LinearAlgebra: norm, eigvals, dot
 
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
@@ -157,24 +157,36 @@ function poequal(
 end
 
 """
-    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → minT_po
+    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kw...) → minT_po
 
 Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
 Return the periodic orbit `minT_po` with the minimal period. 
+
+## Keyword arguments
+
+* `atol = 1e-4` : After stepping the point `u0` for a time `T`, it must return to `atol` neighborhood of itself to be considered periodic.
+* `maxiter = 10` : Maximum number of Poincare map iterations. Continuous-time systems only. 
+* `stepsize = 1e-4` : Step size for creation of the normal vector. Continuous-time systems only. 
+
+## Description
 
 For discrete systems, a valid period would be any natural multiple of the minimal period. 
 Hence, all natural divisors of the period `po.T` are checked as a potential period. 
 A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
 and the final point is less than `atol`, the period of the orbit is `n`.
 
-For continuous systems, the minimal period check is not implemented yet. 
-The function returns a periodic orbit `minT_po` which a copy of input periodic orbit `po`.
+For continuous systems, a point `u0` of the periodic orbit is integrated for 
+a short time `stepsize`. The resulting point `u1` is used to create a normal vector 
+`a=(u1-u0)`. A Poincare map is created using this normal vector. Using the Poincare 
+map, the hyperplane crossings are checked. Time of the first crossing that 
+is within `atol` distance of the initial point `u0` is the minimal period.
+At most `maxiter` crossings are checked.
 """
-function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
+function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit;atol=1e-4, kwargs...)
     type1 = isdiscretetime(ds)
     type2 = isdiscretetime(po)
     if type1 == type2
-        return _minimal_period(ds, po, atol)
+        return _minimal_period(ds, po, atol; kwargs...)
     else
         throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
     end
@@ -195,10 +207,23 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
     return po
 end
 
-function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    # TODO
-    minT_po = po
-    return minT_po
+function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol; maxiter=10, stepsize=1e-4)
+    u0 = po.points[1]
+    reinit!(ds, u0)
+    step!(ds, stepsize)
+    u1 = current_state(ds)
+    a = u1 - u0
+    b = dot(a, u0)
+    pmap = PoincareMap(ds, [a..., b]; u0=u0)
+    for _ in 1:maxiter
+        step!(pmap)
+        if norm(u0 - current_state(pmap)) <= atol
+            minT = current_crossing_time(pmap)
+            Δt2 = minT/(length(po.points)-1)
+            return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt2), minT, po.stable)
+        end
+    end
+    return po
 end
 
 
