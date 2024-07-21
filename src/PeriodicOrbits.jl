@@ -6,5 +6,6 @@ using Reexport
 
 # exports:
 include("api.jl")
+include("pretty_printing.jl")
 
 end
