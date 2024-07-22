@@ -36,3 +36,29 @@ end
     @test length(po.stable) == length(minT_po.stable)
     @test isapprox(T, minT_po.T; atol=1e-4)
 end
+
+function normalhopf(u, p, t)
+    # https://en.wikipedia.org/wiki/Hopf_bifurcation
+    x, y = u
+    μ, ω = p
+    return SVector(
+        (μ - x^2 - y^2)*x - ω*y,
+        (μ - x^2 - y^2)*y + ω*x
+    )
+end
+
+@testset "Known minimal period continuous" begin
+    x, y = [1.0, 0.0] # point on a stable limit cycle
+    μ = x^2 + y^2 # the radius of the orbit is sqrt(μ)
+    ω = 1.1 # angular frequency
+    T = 2*π/ω # period of the stable limit cycle
+    ds = CoupledODEs(normalhopf, [x, y], [μ, ω])
+    t = T
+    step_ = 0.01
+    traj, t = trajectory(ds, t; Dt=step_)
+
+    noise = 25.2 # distort the period on purpose
+    po = PeriodicOrbit(ds, [x, y], T+noise, 0.01)
+    minT_po = minimal_period(ds, po)
+    @test isapprox(minT_po.T, T; atol=1e-5)
+end
