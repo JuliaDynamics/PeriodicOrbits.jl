@@ -7,6 +7,15 @@ using Test, PeriodicOrbits
     return SVector{3}(du1, du2, du3)
 end
 
+function logistic(x0=0.4; r = 4.0)
+    return DeterministicIteratedMap(logistic_rule, SVector(x0), [r])
+end
+logistic_rule(x, p, n) = @inbounds SVector(p[1]*x[1]*(1 - x[1]))
+logistic_jacob(x, p, n) = @inbounds SMatrix{1,1}(p[1]*(1 - 2x[1]))
+
+const logistic_ = logistic()
+const period3window = Dataset([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
+
 @testset "minimal_period discrete" begin
     r = 1+sqrt(8)
     set_parameters!(logistic_, [r])
