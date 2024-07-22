@@ -208,17 +208,17 @@ map, the hyperplane crossings are checked. Time of the first crossing that
 is within `atol` distance of the initial point `u0` is the minimal period.
 At most `maxiter` crossings are checked.
 """
-function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit;atol=1e-4, kwargs...)
+function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kwargs...)
     type1 = isdiscretetime(ds)
     type2 = isdiscretetime(po)
     if type1 == type2
-        return _minimal_period(ds, po, atol; kwargs...)
+        return _minimal_period(ds, po; kwargs...)
     else
         throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
     end
 end
 
-function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
+function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit; atol=1e-4)
     u = po.points[1]
     for n in 1:po.T-1
         po.T % n != 0 && continue
@@ -233,7 +233,7 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, ato
     return po
 end
 
-function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol; maxiter=10, stepsize=1e-4)
+function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit;atol=1e-4, maxiter=10, stepsize=1e-4)
     u0 = po.points[1]
     reinit!(ds, u0)
     step!(ds, stepsize)
