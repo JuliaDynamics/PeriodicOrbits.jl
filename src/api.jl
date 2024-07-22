@@ -57,10 +57,10 @@ obtained by automatic differentiation.
 
 ## Keyword arguments
 
-* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation.
+* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation. For more details, see `jacobian`.
 
 """
-function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds))
+function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
 end
 
@@ -248,12 +248,8 @@ function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {
     return unique_pos
 end
 
-function autodiff_jac(ds::DynamicalSystem)
-    # TODO: where is this defined? Define if needed
-end
-
 """
-    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false/missing
+    isstable(ds::DynamicalSystem, u0, T, jac=jacobian(ds)) → true/false/missing
 
 Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
 using the jacobian `jac`. Returns `true` if the periodic orbit is stable, `false` if it is unstable.
@@ -266,19 +262,18 @@ For continuous systems, the stability check is not implemented yet.
 
 For systems where stability cannot be determined, the function returns `missing`.
 """
-function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
+function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac=jacobian(ds))
     return _isstable(ds, u0, T, jac)
 end
 
-function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::Integer, jac)
-    # TODO: implement for IIP jacobians
+# discrete OOP
+function _isstable(ds::DeterministicIteratedMap{false}, u0::AbstractArray{<:Real}, T::Integer, jac)
     T < 1 && throw(ArgumentError("Period must be a positive integer."))
     reinit!(ds, u0)
-    J = jac(u0, current_parameters(ds), 0.0)
+    J = jac(u0, current_parameters(ds), current_time(ds))
 
-    # this can be derived from chain rule
     for _ in 2:T
-        J = jac(current_state(ds), current_parameters(ds), 0.0) * J
+        J = jac(current_state(ds), current_parameters(ds), current_time(ds)) * J
         step!(ds, 1)
     end
 
@@ -286,13 +281,31 @@ function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::I
     return maximum(abs.(eigs)) < 1
 end
 
-function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
+# discrete IIP
+function _isstable(ds::DeterministicIteratedMap{true}, u0::AbstractArray{<:Real}, T::Integer, jac!)
+    T < 1 && throw(ArgumentError("Period must be a positive integer."))
+    J0 = zeros(dimension(ds), dimension(ds))
+    reinit!(ds, u0)
+    jac!(u0, current_parameters(ds), current_time(ds))
+    J1 = copy(J0)
+
+    for _ in 2:T
+        jac!(current_state(ds), current_parameters(ds), current_time(ds))
+        J1 = J0 * J1
+        step!(ds, 1)
+    end
+
+    eigs = eigvals(Array(J1))
+    return maximum(abs.(eigs)) < 1
+end
+
+function _isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, jac)
+    # all uncovered cases
     missing
 end
 
-function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
-    # TODO: implement for IIP jacobians
-    tands = TangentDynamicalSystem(ds, u0=u0)
+function _isstable(ds::CoupledODEs, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
+    tands = TangentDynamicalSystem(ds, u0=u0; J=jac)
     step!(tands, T)
     monodromy = current_deviations(tands)
     floq_muls = eigvals(monodromy)
