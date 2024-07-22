@@ -64,6 +64,32 @@ function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, 
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
 end
 
+"""
+Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit detection algorithms.
+"""
+abstract type PeriodicOrbitFinder end
+
+"""
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds)) → PeriodicOrbit
+
+Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
+For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
+"""
+function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
+    result::PeriodicOrbit
+    return result
+end
+
+"""
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
+
+Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
+For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
+"""
+function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = [InitialGuess(ds)])
+    result::Vector{PeriodicOrbit}
+    return result
+end
 
 """
     isdiscretetime(po::PeriodicOrbit) → true/false
@@ -271,32 +297,4 @@ function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
     monodromy = current_deviations(tands)
     floq_muls = eigvals(monodromy)
     return maximum(abs.(floq_muls)) < 1
-end
-
-
-"""
-Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit detection algorithms.
-"""
-abstract type PeriodicOrbitFinder end
-
-"""
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds)) → PeriodicOrbit
-
-Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
-For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
-"""
-function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
-    result::PeriodicOrbit
-    return result
-end
-
-"""
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
-
-Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
-For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
-"""
-function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = [InitialGuess(ds)])
-    result::Vector{PeriodicOrbit}
-    return result
 end
