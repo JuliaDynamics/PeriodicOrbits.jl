@@ -32,9 +32,20 @@ function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kwargs...)
     type1 = isdiscretetime(ds)
     type2 = isdiscretetime(po)
     if type1 == type2
-        return _minimal_period(ds, po; kwargs...)
+        newT = _minimal_period(ds, po; kwargs...)
+        return set_period(ds, po, newT)
     else
         throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
+    end
+end
+
+function set_period(ds, po, newT)
+    if newT == po.T
+        return po
+    else
+        # ensure that continuous po has the same amount of points
+        isdiscretetime(ds) ? Δt = 1 : Δt = newT/(length(po.points)-1)
+        return PeriodicOrbit(complete_orbit(ds, po.points[1], newT; Δt=Δt), newT, po.stable)
     end
 end
 
@@ -45,12 +56,10 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit; ato
         reinit!(ds, u)
         step!(ds, n)
         if norm(u - current_state(ds)) < atol
-            points = complete_orbit(ds, u, n; Δt=1)
-            minT_po = PeriodicOrbit(points, n, po.stable)
-            return minT_po
+            return n
         end
     end
-    return po
+    return po.T
 end
 
 function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit;atol=1e-4, maxiter=10, stepsize=1e-4)
@@ -64,10 +73,8 @@ function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit;at
     for _ in 1:maxiter
         step!(pmap)
         if norm(u0 - current_state(pmap)) <= atol
-            minT = current_crossing_time(pmap)
-            Δt2 = minT/(length(po.points)-1)
-            return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt2), minT, po.stable)
+            return current_crossing_time(pmap)
         end
     end
-    return po
+    return po.T
 end
