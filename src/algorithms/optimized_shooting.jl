@@ -1,7 +1,6 @@
 export periodic_orbit, periodic_orbits, OptimizedShooting
 
 using LeastSquaresOptim: optimize, LevenbergMarquardt
-using OrdinaryDiffEq
 
 
 """
@@ -86,29 +85,21 @@ end
 function costfunc(v, ds, alg)
     u0 = v[1:dimension(ds)]
     T = v[end]
-
-    f = dynamic_rule(ds)
-    nds = CoupledODEs(new_rule(f, T), current_state(ds), current_parameters(ds); diffeq=ds.diffeq)
-
-    R1 = compute_residual(nds, u0, alg.Δt, alg.n, 0)
-    R2 = compute_residual(nds, u0, alg.Δt, alg.n, 1)
+    R1 = compute_residual(ds, u0, T*alg.Δt, alg.n, 0)
+    R2 = compute_residual(ds, u0, T*alg.Δt, alg.n, T)
     err = R2 .- R1
     return err
 end
 
-function compute_residual(nds, u0, Δt, n, t0)
-    len = n * dimension(nds)
+function compute_residual(ds, u0, Δt, n, t0)
+    len = n * dimension(ds)
     R = zeros(len)
 
-    reinit!(nds, u0)
-    step!(nds, t0)
+    reinit!(ds, u0)
+    step!(ds, t0, true)
     for i in 0:n-1
-        R[i*dimension(nds)+1:(i+1)*dimension(nds)] .= current_state(nds)
-        step!(nds, Δt)
+        R[i*dimension(ds)+1:(i+1)*dimension(ds)] .= current_state(ds)
+        step!(ds, Δt, true)
     end
     return R
-end
-
-function new_rule(rule, T)
-    return (u, p, t) -> T * rule(u, p, T * t)
 end
