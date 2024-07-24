@@ -30,7 +30,7 @@ end
 a = 0.15; b=0.2; c=3.5
 ig = InitialGuess(SVector(2.0, 5.0, 10.0), 10.2)
 alg = OptimizedShooting(Δt=1/(2^6), n=3)
-ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [a, b, c]; diffeq = (alg=RKO65(), abstol = 1e-14, reltol = 1e-14, dt=alg.Δt))
+ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [a, b, c]; diffeq = (abstol = 1e-14, reltol = 1e-14))
 res = periodic_orbit(ds, alg, ig)
 plot_result(res, ds; azimuth = 1.3pi, elevation=0.1pi)
 ```
