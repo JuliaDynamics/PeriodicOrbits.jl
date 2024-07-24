@@ -29,7 +29,7 @@ function _isstable(ds::DeterministicIteratedMap{false}, u0::AbstractArray{<:Real
 
     for _ in 2:T
         J = jac(current_state(ds), current_parameters(ds), current_time(ds)) * J
-        step!(ds, 1)
+        step!(ds)
     end
 
     eigs = eigvals(Array(J))
@@ -46,8 +46,8 @@ function _isstable(ds::DeterministicIteratedMap{true}, u0::AbstractArray{<:Real}
 
     for _ in 2:T
         jac!(J0, current_state(ds), current_parameters(ds), current_time(ds))
-        J1 = J0 * J1
-        step!(ds, 1)
+        J1 = J0 * J1 # TODO: mul!
+        step!(ds)
     end
 
     eigs = eigvals(Array(J1))
@@ -56,8 +56,10 @@ end
 
 function _isstable(ds::CoupledODEs, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
     tands = TangentDynamicalSystem(ds, u0=u0; J=jac)
-    step!(tands, T)
+    step!(tands, T, true)
     monodromy = current_deviations(tands)
-    floq_muls = eigvals(Array(monodromy))
-    return maximum(abs.(floq_muls)) < 1
+    floq_muls = abs.(eigvals(Array(monodromy)))
+    sort!(floq_muls)
+    x = floq_muls[end-1] + floq_muls[end] - 1
+    return x < 1
 end
