@@ -1,7 +1,7 @@
 using PeriodicOrbits
 
 function lorenz(u0=[0.0, 10.0, 0.0]; σ = 10.0, ρ = 28.0, β = 8/3)
-    return CoupledODEs(lorenz_rule, u0, [σ, ρ, β], diffeq = (abstol = 1e-16, reltol = 1e-16))
+    return CoupledODEs(lorenz_rule, u0, [σ, ρ, β], diffeq = (abstol = 1e-10, reltol = 1e-10))
 end
 @inbounds function lorenz_rule(u, p, t)
     du1 = p[1]*(u[2]-u[1])

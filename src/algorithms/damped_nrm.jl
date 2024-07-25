@@ -39,7 +39,7 @@ function periodic_orbits(ds::CoupledODEs, alg::PeriodicOrbitFinder, igs::Vector{
 
             for _ in 1:alg.maxiter
                 reinit!(ds2, prev_step[1:end-1])
-                step!(ds2, abs(prev_step[end]))
+                step!(ds2, abs(prev_step[end]), true)
 
                 if norm(current_state(ds2) - prev_step[1:end-1]) < alg.disttol
                     push!(pos, PeriodicOrbit{typeof(current_state(ds)), typeof(current_time(ds))}([prev_step[1:end-1]], prev_step[end]))
@@ -69,7 +69,7 @@ function next_step(prev_step, tands, alg, dim)
     accum_norms = ones(size(current_deviations(tands)))
     Δt = 0.3
     for _ in 0:Δt:T
-        step!(tands, Δt)
+        step!(tands, Δt, true)
         cdevs = collect(current_deviations(tands))
         for (j, dev) in enumerate(cdevs)
             n = norm(dev)
