@@ -6,7 +6,8 @@ using LinearAlgebra: norm, dot
     minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kw...) → minT_po
 
 Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
-Return the periodic orbit `minT_po` with the minimal period. 
+Return the periodic orbit `minT_po` with the minimal period. In the literature, minimal 
+period is also called prime, principal or fundamental period.
 
 ## Keyword arguments
 
