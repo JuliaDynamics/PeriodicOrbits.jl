@@ -12,7 +12,6 @@ Return the periodic orbit `minT_po` with the minimal period.
 
 * `atol = 1e-4` : After stepping the point `u0` for a time `T`, it must return to `atol` neighborhood of itself to be considered periodic.
 * `maxiter = 10` : Maximum number of Poincare map iterations. Continuous-time systems only. 
-* `stepsize = 1e-4` : Step size for creation of the normal vector. Continuous-time systems only. 
 
 ## Description
 
@@ -21,8 +20,8 @@ Hence, all natural divisors of the period `po.T` are checked as a potential peri
 A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
 and the final point is less than `atol`, the period of the orbit is `n`.
 
-For continuous systems, a point `u0` of the periodic orbit is integrated for 
-a short time `stepsize`. The resulting point `u1` is used to create a normal vector 
+For continuous systems, a point `u0` of the periodic orbit is integrated for a very short 
+time. The resulting point `u1` is used to create a normal vector 
 `a=(u1-u0)`. A Poincare map is created using this normal vector. Using the Poincare 
 map, the hyperplane crossings are checked. Time of the first crossing that 
 is within `atol` distance of the initial point `u0` is the minimal period.
@@ -61,10 +60,9 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, u0, T; atol=1e-4)
     return T
 end
 
-function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, maxiter=10, stepsize=1e-4)
-    # TODO: remove step size
+function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, maxiter=10)
     reinit!(ds, u0)
-    step!(ds) # smallest possible
+    step!(ds) # smallest possible integration step
     u1 = current_state(ds)
     a = u1 - u0
     b = dot(a, u0)
