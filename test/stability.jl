@@ -10,14 +10,24 @@ function logistic_jacobIIP(du, u, p, n)
     du[:] = logistic_jacobOOP(u, p, n)
     return nothing
 end
+henon_ruleOOP(x, p, n) = SVector{2}(1.0 - p[1]*x[1]^2 + x[2], p[2]*x[1])
+henon_jacobOOP(x, p, n) = SMatrix{2,2}(-2*p[1]*x[1], p[2], 1.0, 0.0)
+function henon_ruleIIP(du, u, p, n)
+    du[:] = henon_ruleOOP(u, p, n)
+    return nothing
+end
+function henon_jacobIIP(du, u, p, n)
+    du[:] = henon_jacobOOP(u, p, n)
+    return nothing
+end
 
 
-@testset "stability discrete" begin
+@testset "stability discrete 1D" begin
     for (rule, jacob) in [
             (logistic_ruleOOP, logistic_jacobOOP), 
             (logistic_ruleIIP, logistic_jacobIIP), 
             (logistic_ruleOOP, nothing), 
-            (logistic_ruleIIP, nothing)
+            (logistic_ruleIIP, nothing),
         ]
         ds = DeterministicIteratedMap(rule, [0.4], [4.0])
         if isnothing(jacob)
@@ -38,8 +48,33 @@ end
         r = 1+sqrt(8)
         set_parameters!(ds, [r])
         @test isstable(ds, period3window[1], 3, jacob) == true
+    end
+end
+
+@testset "stability discrete 2D" begin
+    for (rule, jacob) in [
+            (henon_ruleOOP, henon_jacobOOP), 
+            (henon_ruleIIP, henon_jacobIIP), 
+            (henon_ruleOOP, nothing), 
+            (henon_ruleIIP, nothing),
+        ]
         
-        # TODO: test also higher dimensional systems, eg. Henon
+
+        ds = DeterministicIteratedMap(rule, [0.0, 0.0], [1.4, 0.3])
+        if isnothing(jacob)
+            jacob = jacobian(ds)    
+        end
+        # not using StaticArrays to work with IIP
+        unstable_period2 = [
+            [0.88389, 0.88389],
+            [-0.66612, 1.36612]
+        ]
+        fp = isstable(ds, unstable_period2[1], 2, jacob)
+        @test fp == false
+        @test typeof(fp) == Bool
+
+        fp = isstable(ds, unstable_period2[2], 2, jacob)
+        @test fp == false
     end
 end
 
