@@ -60,7 +60,7 @@ obtained by automatic differentiation.
 
 """
 function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, _isstable(ds, u0, T, jac))
 end
 
 """
@@ -107,7 +107,7 @@ end
 """
     complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
-Complete the periodic orbit `po` of period `po.T`. For POs of discrete-time systems, it means iterating 
+Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
 the periodic point `po.T` times. For POs of continuous-time systems, it means integrating the system for 
 `po.T` time units with step `Δt`. For POs of discrete-time systems `Δt` must be equal to `1`. 
 

@@ -37,17 +37,17 @@ end
         period3window = [[x] for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]]
         r = 2.3
         set_parameters!(ds, [r])
-        fp = isstable(ds, [(r-1)/r], 1, jacob)
+        fp = isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1, 1), jacob).stable
         @test fp == true
         @test typeof(fp) == Bool
 
         r = 3.3
         set_parameters!(ds, [r])
-        @test isstable(ds, [(r-1)/r], 1, jacob) == false
+        @test isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable == false
 
         r = 1+sqrt(8)
         set_parameters!(ds, [r])
-        @test isstable(ds, period3window[1], 3, jacob) == true
+        @test isstable(ds, PeriodicOrbit(ds, period3window[1], 3), jacob).stable == true
     end
 end
 
@@ -69,11 +69,11 @@ end
             [0.88389, 0.88389],
             [-0.66612, 1.36612]
         ]
-        fp = isstable(ds, unstable_period2[1], 2, jacob)
+        fp = isstable(ds, PeriodicOrbit(ds, unstable_period2[1], 2), jacob).stable
         @test fp == false
         @test typeof(fp) == Bool
 
-        fp = isstable(ds, unstable_period2[2], 2, jacob)
+        fp = isstable(ds, PeriodicOrbit(ds, unstable_period2[2], 2), jacob).stable
         @test fp == false
     end
 end
@@ -157,6 +157,6 @@ end
         if isnothing(jac)
             jac = jacobian(ds)    
         end
-        @test isstable(ds, current_state(ds), T, jac) ==  result
+        @test isstable(ds, PeriodicOrbit(ds, current_state(ds), T, 0.5), jac).stable ==  result
     end
 end
