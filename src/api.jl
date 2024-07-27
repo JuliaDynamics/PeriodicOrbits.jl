@@ -47,8 +47,8 @@ end
 
 Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
 the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
-In case of continuous dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
-`Δt` and the points are stored in `po.points`. In case of discrete dynamical systems, the orbit is 
+In case of continuous-time dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
+`Δt` and the points are stored in `po.points`. In case of discrete-time dynamical systems, the orbit is 
 obtained by iterating the periodic point `T-1` times and the points are stored in `po.points`.
 Local stability of the periodic orbit is determined and stored in the `po.stable` field.
 For determining the stability, the Jacobian matrix `jac` is used. The default Jacobian is 
@@ -93,8 +93,8 @@ end
 """
     isdiscretetime(po::PeriodicOrbit) → true/false
 
-Return `true` if the periodic orbit belongs to a discrete dynamical system
-`false` if it belongs to a continuous dynamical system.
+Return `true` if the periodic orbit belongs to a discrete-time dynamical system
+`false` if it belongs to a continuous-time dynamical system.
 """
 function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D, B, R}) where {D, B, R <: Integer}
     true
@@ -107,17 +107,17 @@ end
 """
     complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
-Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
-the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
-`po.T` time units with step `Δt`. For POs of discrete systems `Δt` must be equal to `1`. 
+Complete the periodic orbit `po` of period `po.T`. For POs of discrete-time systems, it means iterating 
+the periodic point `po.T` times. For POs of continuous-time systems, it means integrating the system for 
+`po.T` time units with step `Δt`. For POs of discrete-time systems `Δt` must be equal to `1`. 
 
 ## Keyword arguments
 
-* `Δt` : step size for continuous systems.
+* `Δt` : step size for continuous-time systems.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
-    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete systems")) 
+    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems")) 
     traj, _ = trajectory(
         ds, 
         isdiscrete ? T-1 : T, 
@@ -133,7 +133,7 @@ end
 
 Compute the distance between two periodic orbits `po1` and `po2`. 
 Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
-be either discrete or continuous.
+be either discrete-time or continuous-time.
 Distance between the periodic orbits is computed using the given distance function `distance`.
 The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
 Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
@@ -146,7 +146,7 @@ function podistance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean
     if type1 == type2
         return set_distance(po1.points, po2.points, distance)
     else
-        throw(ArgumentError("Both periodic orbits have to be either discrete or continuous."))
+        throw(ArgumentError("Both periodic orbits have to be either discrete-time or continuous-time."))
     end
 end
 
@@ -187,12 +187,12 @@ end
 Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
 Return the periodic orbit `minT_po` with the minimal period. 
 
-For discrete systems, a valid period would be any natural multiple of the minimal period. 
+For discrete-time systems, a valid period would be any natural multiple of the minimal period. 
 Hence, all natural divisors of the period `po.T` are checked as a potential period. 
 A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
 and the final point is less than `atol`, the period of the orbit is `n`.
 
-For continuous systems, the minimal period check is not implemented yet. 
+For continuous-time systems, the minimal period check is not implemented yet. 
 The function returns a periodic orbit `minT_po` which a copy of input periodic orbit `po`.
 """
 function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
@@ -201,7 +201,7 @@ function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
     if type1 == type2
         return _minimal_period(ds, po, atol)
     else
-        throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
+        throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete-time or continuous-time."))
     end
 end
 
