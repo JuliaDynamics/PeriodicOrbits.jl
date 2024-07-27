@@ -47,7 +47,7 @@ function normalhopf(u, p, t)
     )
 end
 
-# @testset "Known minimal period continuous" begin
+@testset "Known minimal period continuous" begin
     x, y = [1.0, 0.0] # point on a stable limit cycle
     μ = x^2 + y^2 # the radius of the orbit is sqrt(μ)
     ω = 1.1 # angular frequency
@@ -61,15 +61,4 @@ end
     po = PeriodicOrbit(ds, [x, y], T+noise, 0.01)
     minT_po = minimal_period(ds, po)
     @test isapprox(minT_po.T, T; atol=1e-5)
-# end
-
-using LinearAlgebra: dot
-#%%
-u0 = po.points[1]
-T = po.T
-reinit!(ds, u0)
-step!(ds) # smallest possible
-u1 = current_state(ds)
-a = u1 - u0
-b = dot(a, u0)
-pmap = PoincareMap(ds, [a..., b]; u0=u0)
+end
