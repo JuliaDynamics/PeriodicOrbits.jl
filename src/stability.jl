@@ -1,6 +1,6 @@
 export isstable
 
-using LinearAlgebra: eigvals
+using LinearAlgebra: eigvals, mul!
 
 """
     isstable(ds::CoreDynamicalSystem, u0, T [, jac]) → true/false
@@ -40,13 +40,13 @@ end
 function _isstable(ds::DeterministicIteratedMap{true}, u0::AbstractArray{<:Real}, T::Integer, jac!)
     T < 1 && throw(ArgumentError("Period must be a positive integer."))
     J0 = zeros(dimension(ds), dimension(ds))
+    J1 = ones(dimension(ds), dimension(ds))
+    dummyJ = copy(J0)
     reinit!(ds, u0)
-    jac!(J0, u0, current_parameters(ds), current_time(ds))
-    J1 = copy(J0)
-
-    for _ in 2:T
+    for _ in 1:T
         jac!(J0, current_state(ds), current_parameters(ds), current_time(ds))
-        J1 = J0 * J1 # TODO: mul!
+        mul!(dummyJ, J0, J1)
+        J1 .= dummyJ
         step!(ds)
     end
 
