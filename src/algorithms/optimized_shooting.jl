@@ -1,4 +1,4 @@
-export periodic_orbit, periodic_orbits, OptimizedShooting
+export periodic_orbit, periodic_orbits, OptimizedShooting, periodic_orbit2, periodic_orbits2
 
 using LeastSquaresOptim: optimize, LevenbergMarquardt
 
@@ -63,6 +63,20 @@ function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGues
     return nothing
 end
 
+function periodic_orbit2(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
+    R1 = zeros(alg.n*dimension(ds))
+    R2 = copy(R1)
+    err = copy(R1)
+    cf = CostFunc(R1, R2, err)
+    res = optimize(v -> cf(v, ds, alg), [ig.u0..., ig.T], LevenbergMarquardt(); alg.optim_kwargs...)
+    if res.ssr <= alg.abstol
+        u0 = res.minimizer[1:dimension(ds)]
+        T = res.minimizer[end]
+        return PeriodicOrbit(ds, u0, T, 0.01; jac=nothing)
+    end
+    return nothing
+end
+
 function periodic_orbits(ds::CoupledODEs, alg::OptimizedShooting, igs::Vector{<:InitialGuess})
     # TODO: annotate `pos` with correct type
     pos = []
@@ -73,6 +87,36 @@ function periodic_orbits(ds::CoupledODEs, alg::OptimizedShooting, igs::Vector{<:
         end
     end
     return pos
+end
+
+function periodic_orbits2(ds::CoupledODEs, alg::OptimizedShooting, igs::Vector{<:InitialGuess})
+    # TODO: annotate `pos` with correct type
+    pos = []
+    for ig in igs
+        res = periodic_orbit2(ds, alg, ig)
+        if !isnothing(res)
+            push!(pos, res)
+        end
+    end
+    return pos
+end
+
+struct CostFunc{T}
+    R1::Vector{T}
+    R2::Vector{T}
+    err::Vector{T}
+end
+
+function (cf::CostFunc)(v, ds, alg)
+    (; R1, R2, err) = cf
+    u0 = @view v[1:dimension(ds)]
+    T = v[end]
+    reinit!(ds, u0)
+    compute_residual!(R1, ds, u0, T*alg.Δt, alg.n, 0)
+    step!(ds, T - current_time(ds), true)
+    compute_residual!(R2, ds, u0, T*alg.Δt, alg.n, T)
+    err .= R2 .- R1
+    return err
 end
 
 function costfunc(v, ds, alg)
@@ -95,4 +139,11 @@ function compute_residual(ds, u0, Δt, n, t0)
         step!(ds, Δt, true)
     end
     return R
+end
+
+function compute_residual!(R, ds, u0, Δt, n, t0)
+    for i in 0:n-1
+        R[i*dimension(ds)+1:(i+1)*dimension(ds)] .= current_state(ds)
+        step!(ds, Δt, true)
+    end
 end
