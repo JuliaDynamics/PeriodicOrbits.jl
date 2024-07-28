@@ -7,7 +7,7 @@ using LeastSquaresOptim: optimize, LevenbergMarquardt
     OptimizedShooting(; kwargs...)
 
 A shooting method [Dednam2014](@cite) combined with Levenberg-Marquardt optimization 
-to find periodic orbits of continuous systems.
+to find periodic orbits of continuous-time systems.
 
 ## Keyword arguments
 - `Δt::Float64 = 1e-6`: step in the residual `R` between points. See below.
