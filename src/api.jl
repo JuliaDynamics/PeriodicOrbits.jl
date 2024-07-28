@@ -20,7 +20,7 @@ A structure that contains an initial guess for a periodic orbit detection algori
     * `u0` - guess of a point in the periodic orbit
     * `T` - guess of period of the orbit
 """
-struct InitialGuess{U<:AbstractArray{<:Real},R<:Union{Real,Nothing}}
+struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
     u0::U
     T::R
 end
@@ -37,10 +37,10 @@ A structure that contains information about a periodic orbit.
     * `stable::Bool` - local stability of the periodic orbit
 
 """
-struct PeriodicOrbit{D,B,R<:Real}
-    points::StateSpaceSet{D,B}
+struct PeriodicOrbit{D, B, R<:Real}
+    points::StateSpaceSet{D, B}
     T::R
-    stable::Union{Bool,Missing}
+    stable::Union{Bool, Missing}
 end
 
 """
