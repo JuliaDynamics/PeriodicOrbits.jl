@@ -4,7 +4,6 @@ export InitialGuess,
     isdiscretetime,
     complete_orbit,
     podistance,
-    minimal_period,
     uniquepos,
     isstable,
     poequal,
@@ -61,7 +60,8 @@ obtained by automatic differentiation.
 
 """
 function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds))
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, isstable(ds, u0, T, jac))
+    minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, isstable(ds, u0, minT, jac))
 end
 
 """
@@ -180,51 +180,6 @@ function poequal(
     end
     d = podistance(po1, po2, distance)
     return d < dthres
-end
-
-"""
-    minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4) → minT_po
-
-Compute the minimal period of the periodic orbit `po` of the dynamical system `ds`.
-Return the periodic orbit `minT_po` with the minimal period. 
-
-For discrete systems, a valid period would be any natural multiple of the minimal period. 
-Hence, all natural divisors of the period `po.T` are checked as a potential period. 
-A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
-and the final point is less than `atol`, the period of the orbit is `n`.
-
-For continuous systems, the minimal period check is not implemented yet. 
-The function returns a periodic orbit `minT_po` which a copy of input periodic orbit `po`.
-"""
-function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit, atol=1e-4)
-    type1 = isdiscretetime(ds)
-    type2 = isdiscretetime(po)
-    if type1 == type2
-        return _minimal_period(ds, po, atol)
-    else
-        throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
-    end
-end
-
-function _minimal_period(ds::DiscreteTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    u = po.points[1]
-    for n in 1:po.T-1
-        po.T % n != 0 && continue
-        reinit!(ds, u)
-        step!(ds, n)
-        if norm(u - current_state(ds)) < atol
-            points = complete_orbit(ds, u, n; Δt=1)
-            minT_po = PeriodicOrbit(points, n, po.stable)
-            return minT_po
-        end
-    end
-    return po
-end
-
-function _minimal_period(ds::ContinuousTimeDynamicalSystem, po::PeriodicOrbit, atol)
-    # TODO
-    minT_po = po
-    return minT_po
 end
 
 
