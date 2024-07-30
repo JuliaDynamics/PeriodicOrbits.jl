@@ -12,7 +12,9 @@ period is also called prime, principal or fundamental period.
 ## Keyword arguments
 
 * `atol = 1e-4` : After stepping the point `u0` for a time `T`, it must return to `atol` neighborhood of itself to be considered periodic.
-* `maxiter = 10` : Maximum number of Poincare map iterations. Continuous-time systems only. 
+* `maxiter = 40` : Maximum number of Poincare map iterations. Continuous-time systems only. 
+  If the number of Poincare map iterations exceeds `maxiter`, but the point `u0` has not 
+  returned to `atol` neighborhood of itself, the original period `po.T` is returned.
 
 ## Description
 
@@ -61,7 +63,7 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, u0, T; atol=1e-4)
     return T
 end
 
-function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, maxiter=10)
+function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, maxiter=40)
     reinit!(ds, u0)
     step!(ds) # smallest possible integration step
     u1 = current_state(ds)
@@ -75,5 +77,7 @@ function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, max
             return current_crossing_time(pmap) - t0
         end
     end
+    @warn("The Poincare map did not return to the initial point within the maximum number 
+    of iterations. Consider increasing keyword argument `maxiter` or ODE solver precision.")
     return T
 end
