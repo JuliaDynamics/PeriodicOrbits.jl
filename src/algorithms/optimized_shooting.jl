@@ -1,6 +1,7 @@
 export periodic_orbit, periodic_orbits, OptimizedShooting, periodic_orbit2, periodic_orbits2
 
 using LeastSquaresOptim: optimize, LevenbergMarquardt
+using NonlinearSolve
 
 
 """
@@ -54,10 +55,12 @@ The keyword argument `Δt` corresponds to ``\\Delta \\tau`` in the residual ``R`
 end
 
 function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
-    res = optimize(v -> costfunc(v, ds, alg), [ig.u0..., ig.T], LevenbergMarquardt(); alg.optim_kwargs...)
-    if res.ssr <= alg.abstol
-        u0 = res.minimizer[1:dimension(ds)]
-        T = res.minimizer[end]
+    prob = NonlinearSolve.NonlinearLeastSquaresProblem(
+        NonlinearSolve.NonlinearFunction(costfunc(ds, alg), resid_prototype = zeros(alg.n*dimension(ds))), [ig.u0..., ig.T])
+    res = NonlinearSolve.solve(prob, NonlinearSolve.LevenbergMarquardt(), reltol = 1e-10, abstol = 1e-10)
+    if res.retcode == 1
+        u0 = res.u[1:dimension(ds)]
+        T = res.u[end]
         return PeriodicOrbit(ds, u0, T, 0.01; jac=nothing)
     end
     return nothing
@@ -119,13 +122,15 @@ function (cf::CostFunc)(v, ds, alg)
     return err
 end
 
-function costfunc(v, ds, alg)
-    u0 = v[1:dimension(ds)]
-    T = v[end]
-    R1 = compute_residual(ds, u0, T*alg.Δt, alg.n, 0)
-    R2 = compute_residual(ds, u0, T*alg.Δt, alg.n, T)
-    err = R2 .- R1
-    return err
+function costfunc(ds, alg)
+    return (err, v, p) -> begin
+        u0 = v[1:dimension(ds)]
+        T = v[end]
+        R1 = compute_residual(ds, u0, T*alg.Δt, alg.n, 0)
+        R2 = compute_residual(ds, u0, T*alg.Δt, alg.n, T)
+        err .= R2 .- R1
+        return nothing
+    end
 end
 
 function compute_residual(ds, u0, Δt, n, t0)
@@ -133,10 +138,10 @@ function compute_residual(ds, u0, Δt, n, t0)
     R = zeros(len)
 
     reinit!(ds, u0)
-    step!(ds, t0, true)
+    step!(ds.integ, t0, true)
     for i in 0:n-1
         R[i*dimension(ds)+1:(i+1)*dimension(ds)] .= current_state(ds)
-        step!(ds, Δt, true)
+        step!(ds.integ, Δt, true)
     end
     return R
 end
