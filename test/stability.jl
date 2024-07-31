@@ -153,7 +153,7 @@ end
         μ = x^2 + y^2 # the radius of the orbit is sqrt(μ)
         ω = 1.1 # angular frequency
         T = 2*π/ω # period of the stable limit cycle
-        ds = CoupledODEs(rule, [x, y], [μ, ω])
+        ds = CoupledODEs(rule, [x, y], [μ, ω], diffeq=(abstol=1e-8, reltol=1e-8))
         if isnothing(jac)
             jac = jacobian(ds)    
         end

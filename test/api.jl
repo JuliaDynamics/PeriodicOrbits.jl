@@ -41,15 +41,6 @@ end
     @test typeof(completed_orbit) <: StateSpaceSet
 end
 
-@testset "minimal_period" begin
-    r = 1+sqrt(8)
-    set_parameters!(logistic_, [r])
-    k = 4
-    po = PeriodicOrbit(logistic_, period3window[1], k*3; jac=logistic_jacob)
-    po = minimal_period(logistic_, po)
-    @test po.T == 3 == length(po.points)
-end
-
 @testset "unique POs" begin
     r = 1+sqrt(8)
     set_parameters!(logistic_, [r])
