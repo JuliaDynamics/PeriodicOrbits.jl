@@ -13,6 +13,7 @@ using Reexport
 
 # exports:
 include("api.jl")
+include("minimal_period.jl")
 include("pretty_printing.jl")
 include("algorithms/optimized_shooting.jl")
 

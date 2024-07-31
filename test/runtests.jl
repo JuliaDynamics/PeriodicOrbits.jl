@@ -6,5 +6,6 @@ testfile(file, testname=defaultname(file)) = @testset "$testname" begin; include
 
 @testset "PeriodicOrbits" begin
     testfile("api.jl")
+    testfile("minimal_period.jl")
     testfile("algorithms/optimized_shooting.jl")
 end
