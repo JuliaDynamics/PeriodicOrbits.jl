@@ -46,10 +46,10 @@ x(1+(n-1)\\Delta \\tau)-x((n-1)\\Delta \\tau))
 In our implementation keyword argument `n` corresponds to ``n`` in the residual ``R``. 
 The keyword argument `Δt` corresponds to ``\\Delta \\tau`` in the residual ``R``.
 """
-@kwdef struct OptimizedShooting <: PeriodicOrbitFinder
+@kwdef struct OptimizedShooting{T} <: PeriodicOrbitFinder
     Δt::Float64 = 1e-6
     n::Int64 = 2
-    optim_kwargs::NamedTuple = (x_tol=1e-10,)
+    optim_kwargs::T = (x_tol=1e-8, g_tol=1e-3, f_tol=1e-6)
     abstol::Float64 = 1e-3
 end
 
