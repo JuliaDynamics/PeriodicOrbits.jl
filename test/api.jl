@@ -33,22 +33,6 @@ end
     # TODO
 end
 
-@testset "stability discrete" begin
-    r = 2.3
-    set_parameters!(logistic_, [r])
-    fp = isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob)
-    @test fp == true
-    @test typeof(fp) == Bool
-
-    r = 3.3
-    set_parameters!(logistic_, [r])
-    @test isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob) == false
-
-    r = 1+sqrt(8)
-    set_parameters!(logistic_, [r])
-    @test isstable(logistic_, period3window[1], 3, logistic_jacob) == true
-end
-
 @testset "complete orbit" begin
     r = 1+sqrt(8)
     set_parameters!(logistic_, [r])

@@ -64,16 +64,17 @@ function _minimal_period(ds::DiscreteTimeDynamicalSystem, u0, T; atol=1e-4)
 end
 
 function _minimal_period(ds::ContinuousTimeDynamicalSystem, u0, T;atol=1e-4, maxiter=40)
+    u0_ = copy(u0) # for IIP systems
     reinit!(ds, u0)
     step!(ds) # smallest possible integration step
     u1 = current_state(ds)
-    a = u1 - u0
-    b = dot(a, u0)
-    pmap = PoincareMap(ds, [a..., b]; u0=u0)
+    a = u1 - u0_
+    b = dot(a, u0_)
+    pmap = PoincareMap(ds, [a..., b]; u0=u0_)
     t0 = current_crossing_time(pmap)
     for _ in 1:maxiter
         step!(pmap)
-        if norm(u0 - current_state(pmap)) <= atol
+        if norm(u0_ - current_state(pmap)) <= atol
             return current_crossing_time(pmap) - t0
         end
     end
