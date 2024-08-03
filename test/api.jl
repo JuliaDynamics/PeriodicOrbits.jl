@@ -33,37 +33,12 @@ end
     # TODO
 end
 
-@testset "stability discrete" begin
-    r = 2.3
-    set_parameters!(logistic_, [r])
-    fp = isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob)
-    @test fp == true
-    @test typeof(fp) == Bool
-
-    r = 3.3
-    set_parameters!(logistic_, [r])
-    @test isstable(logistic_, SVector{1}([(r-1)/r]), 1, logistic_jacob) == false
-
-    r = 1+sqrt(8)
-    set_parameters!(logistic_, [r])
-    @test isstable(logistic_, period3window[1], 3, logistic_jacob) == true
-end
-
 @testset "complete orbit" begin
     r = 1+sqrt(8)
     set_parameters!(logistic_, [r])
     completed_orbit = complete_orbit(logistic_, period3window[1], 3)
     @test completed_orbit == period3window
     @test typeof(completed_orbit) <: StateSpaceSet
-end
-
-@testset "minimal_period" begin
-    r = 1+sqrt(8)
-    set_parameters!(logistic_, [r])
-    k = 4
-    po = PeriodicOrbit(logistic_, period3window[1], k*3; jac=logistic_jacob)
-    po = minimal_period(logistic_, po)
-    @test po.T == 3 == length(po.points)
 end
 
 @testset "unique POs" begin
