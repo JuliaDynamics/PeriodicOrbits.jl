@@ -59,7 +59,8 @@ obtained by automatic differentiation.
 
 """
 function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
-    minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    # minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    minT = T # TODO: ensure that minT is precise enough
     return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, _isstable(ds, u0, minT, jac))
 end
 
