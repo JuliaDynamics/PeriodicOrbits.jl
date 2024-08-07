@@ -36,23 +36,30 @@ function transform_rule(rule)
     end
 end
 
+
 #%%
-function detect(u0::AbstractArray{L}, p0, alg, ds) where L
-    rule = dynamic_rule(ds)
-    rule = transform_rule(rule)
-    ds = CoupledODEs(rule, zeros(dimension(ds)), p0)
-    bounds = zeros(alg.n*2)
-    for i in 0:alg.n-1
-        bounds[i+1] = i*alg.Δt
-        bounds[i+alg.n+1] = 1.0 + i*alg.Δt
-    end
-    tspan = (0.0, 1.0 + alg.n*alg.Δt)
+function detect(u0, p0, alg, ds)
+    D = dimension(ds)
     f = (err, v, p) -> begin
-            u0 =  SVector(v[1:3]...)
+            # period = eltype(v) <: ForwardDiff.Dual ? v[end].value : v[end]
+            # @show period
             T = v[end]
-            p0 = typeof(T).(p)
-            p0[end] = T
-            sol = solve(SciMLBase.remake(ds.integ.sol.prob; u0=u0, p=p0, tspan=tspan), Tsit5(), reltol = 1e-6, abstol = 1e-6, saveat=bounds)
+            bounds = zeros(eltype(v), alg.n*2)
+            for i in 0:alg.n-1
+                bounds[i+1] = i*alg.Δt
+                bounds[i+alg.n+1] = T + i*alg.Δt
+            end
+            tspan = (0.0, T + alg.n*alg.Δt)
+            if isinplace(ds) 
+                u0 = @view v[1:D]
+            else
+                u0 =  SVector{D}(v[1:D])
+            end
+
+            # sol = solve(SciMLBase.remake(ds.integ.sol.prob; u0=u0, 
+            # tspan=tspan), Tsit5(), reltol = 1e-6, abstol = 1e-6, saveat=bounds)
+            sol = solve(SciMLBase.remake(ds.integ.sol.prob; u0=u0, 
+            tspan=tspan); DynamicalSystemsBase.DEFAULT_DIFFEQ..., ds.diffeq..., saveat=bounds)
             dim = dimension(ds)
             for i in 1:alg.n
                 err[dim*i-(dim-1):dim*i] = sol.u[i] - sol.u[i+alg.n]
@@ -64,6 +71,48 @@ function detect(u0::AbstractArray{L}, p0, alg, ds) where L
 
     solve(prob, NonlinearSolve.LevenbergMarquardt(); reltol = 1e-6, abstol = 1e-6, maxiters=1000)
 end
+# function detect(u0, p0, alg, ds)
+#     rule = dynamic_rule(ds)
+#     rule = transform_rule(rule)
+#     ds = CoupledODEs(rule, zeros(dimension(ds)), p0)
+#     bounds = zeros(alg.n*2)
+#     for i in 0:alg.n-1
+#         bounds[i+1] = i*alg.Δt
+#         bounds[i+alg.n+1] = 1.0 + i*alg.Δt
+#     end
+#     tspan = (0.0, 1.0 + alg.n*alg.Δt)
+#     D = dimension(ds)
+#     f = (err, v, p) -> begin
+#             u0 =  SVector{D, eltype(u0)}(@view v[1:3])
+#             T = v[end]
+#             p0 = typeof(T).(p) # needed for ForwardDiff
+#             p0[end] = T
+#             sol = solve(SciMLBase.remake(ds.integ.sol.prob; u0=u0, p=p0, 
+#             tspan=tspan), Tsit5(), reltol = 1e-6, abstol = 1e-6, saveat=bounds)
+#             dim = dimension(ds)
+#             for i in 1:alg.n
+#                 err[dim*i-(dim-1):dim*i] = sol.u[i] - sol.u[i+alg.n]
+#             end
+#         end
+
+#     prob = NonlinearLeastSquaresProblem(
+#         NonlinearFunction(f, resid_prototype = zeros(alg.n*dimension(ds))), u0, p0)
+
+#     solve(prob, NonlinearSolve.LevenbergMarquardt(); reltol = 1e-6, abstol = 1e-6, maxiters=1000)
+# end
+
+#%%
+u0 = [0.1, -5.0, 1.0, 2.1]
+p0 = [10.0, 28.0, 8/3]
+alg = OptimizedShooting(Δt=1e-4, n=5)
+ds = CoupledODEs(lorenz_rule, zeros(3), p0[1:3])
+@time res = detect(u0, p0, alg, ds)
+
+
+u = SVector{3}(res.u[1:3])
+T = res.u[end]
+ds = CoupledODEs(lorenz_rule, u, p0, diffeq=(abstol=1e-14, reltol=1e-14))
+plot_result(u, 1*T, ds; azimuth = 1.8pi, elevation=0.1pi)
 
 
 #%%
@@ -90,3 +139,17 @@ u = SVector{3}(res.u[1:3])
 T = res.u[end]
 ds = CoupledODEs(roessler_rule, u, p0[1:end-1], diffeq=(abstol=1e-14, reltol=1e-14))
 plot_result(u, 1*T, ds; azimuth = 1.3pi, elevation=0.1pi)
+
+#%%
+using PredefinedDynamicalSystems
+
+ds = PredefinedDynamicalSystems.lorenz96(5)
+u0 = [5*rand(5)..., 15.0]
+p0 = [16.0]
+alg = OptimizedShooting(Δt=1e-4, n=5)
+@time res = detect(u0, p0, alg, ds)
+
+
+u = SVector{3}(res.u[1:3])
+T = res.u[end]
+plot_result(u, 1.0*T, ds; azimuth = 1.8pi, elevation=0.1pi)
