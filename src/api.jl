@@ -5,13 +5,12 @@ export InitialGuess,
     complete_orbit,
     podistance,
     uniquepos,
-    isstable,
     poequal,
     periodic_orbit,
     periodic_orbits
 
 import DynamicalSystemsBase
-using LinearAlgebra: norm, eigvals
+using LinearAlgebra: norm
 
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
@@ -47,8 +46,8 @@ end
 
 Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
 the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
-In case of continuous dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
-`Δt` and the points are stored in `po.points`. In case of discrete dynamical systems, the orbit is 
+In case of continuous-time dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
+`Δt` and the points are stored in `po.points`. In case of discrete-time dynamical systems, the orbit is 
 obtained by iterating the periodic point `T-1` times and the points are stored in `po.points`.
 Local stability of the periodic orbit is determined and stored in the `po.stable` field.
 For determining the stability, the Jacobian matrix `jac` is used. The default Jacobian is 
@@ -56,11 +55,12 @@ obtained by automatic differentiation.
 
 ## Keyword arguments
 
-* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation.
+* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation. For more details, see `jacobian`.
 
 """
-function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=autodiff_jac(ds))
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, missing)
+function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
+    minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, _isstable(ds, u0, minT, jac))
 end
 
 """
@@ -93,8 +93,8 @@ end
 """
     isdiscretetime(po::PeriodicOrbit) → true/false
 
-Return `true` if the periodic orbit belongs to a discrete dynamical system
-`false` if it belongs to a continuous dynamical system.
+Return `true` if the periodic orbit belongs to a discrete-time dynamical system
+`false` if it belongs to a continuous-time dynamical system.
 """
 function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:Integer}
     true
@@ -108,16 +108,16 @@ end
     complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
 Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
-the periodic point `po.T` times. For POs of continuous systems, it means integrating the system for 
-`po.T` time units with step `Δt`. For POs of discrete systems `Δt` must be equal to `1`. 
+the periodic point `po.T` times. For POs of continuous-time systems, it means integrating the system for 
+`po.T` time units with step `Δt`. For POs of discrete-time systems `Δt` must be equal to `1`. 
 
 ## Keyword arguments
 
-* `Δt` : step size for continuous systems.
+* `Δt` : step size for continuous-time systems.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
-    isdiscrete && Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete systems"))
+    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems")) 
     traj, _ = trajectory(
         ds,
         isdiscrete ? T - 1 : T,
@@ -133,7 +133,7 @@ end
 
 Compute the distance between two periodic orbits `po1` and `po2`. 
 Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
-be either discrete or continuous.
+be either discrete-time or continuous-time.
 Distance between the periodic orbits is computed using the given distance function `distance`.
 The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
 Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
@@ -146,7 +146,7 @@ function podistance(po1, po2, distance=StrictlyMinimumDistance(true, Euclidean()
     if type1 == type2
         return set_distance(po1.points, po2.points, distance)
     else
-        throw(ArgumentError("Both periodic orbits have to be either discrete or continuous."))
+        throw(ArgumentError("Both periodic orbits have to be either discrete-time or continuous-time."))
     end
 end
 
@@ -200,51 +200,4 @@ function uniquepos(pos::Vector{PeriodicOrbit{D,B,R}}, atol::Real=1e-6) where {D,
     end
 
     return unique_pos
-end
-
-function autodiff_jac(ds::DynamicalSystem)
-    # TODO: where is this defined? Define if needed
-end
-
-"""
-    isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac) → true/false/missing
-
-Determine the local stability of the point `u0` laying on the periodic orbit with period `T`
-using the jacobian `jac`. Returns `true` if the periodic orbit is stable, `false` if it is unstable.
-
-For discrete systems, the stability is determined using eigenvalues of the jacobian of `T`-th 
-iterate of the dynamical system `ds` at the point `u0`. If the maximum absolute value of the eigenvalues 
-is less than `1`, the periodic orbit is marked as stable.
-
-For continuous systems, the stability check is not implemented yet.
-
-For systems where stability cannot be determined, the function returns `missing`.
-"""
-function isstable(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, jac)
-    return _isstable(ds, u0, T, jac)
-end
-
-function _isstable(ds::DeterministicIteratedMap, u0::AbstractArray{<:Real}, T::Integer, jac)
-    # TODO: implement or IIP jacobians
-    T < 1 && throw(ArgumentError("Period must be a positive integer."))
-    reinit!(ds, u0)
-    J = jac(u0, current_parameters(ds), 0.0)
-
-    # this can be derived from chain rule
-    for _ in 2:T
-        J = jac(current_state(ds), current_parameters(ds), 0.0) * J
-        step!(ds, 1)
-    end
-
-    eigs = eigvals(Array(J))
-    return maximum(abs.(eigs)) < 1
-end
-
-function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
-    missing
-end
-
-function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
-    # @warn "Stability check for continuous systems is not implemented yet. Returning false."
-    return false
 end
