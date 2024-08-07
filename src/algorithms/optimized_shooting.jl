@@ -137,7 +137,7 @@ function compute_residual(ds, u0, Δt, n, t0)
     len = n * dimension(ds)
     R = zeros(len)
 
-    reinit!(ds, u0)
+    reinit!(ds.integ, u0)
     step!(ds.integ, t0, true)
     for i in 0:n-1
         R[i*dimension(ds)+1:(i+1)*dimension(ds)] .= current_state(ds)
