@@ -245,6 +245,6 @@ function _isstable(ds::PoincareMap, u0::AbstractArray{<:Real}, T::Integer, jac)
 end
 
 function _isstable(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, jac)
-    @warn "Stability check for continuous systems is not implemented yet. Returning false."
+    # @warn "Stability check for continuous systems is not implemented yet. Returning false."
     return false
 end

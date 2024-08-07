@@ -27,10 +27,9 @@ function plot_result(res, ds; azimuth = 1.3 * pi, elevation = 0.3 * pi)
     return fig
 end
 
-a = 0.15; b=0.2; c=3.5
 ig = InitialGuess(SVector(2.0, 5.0, 10.0), 10.2)
-alg = OptimizedShooting(Δt=1/(2^6), n=3)
-ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [a, b, c]; diffeq = (abstol = 1e-14, reltol = 1e-14))
+alg = OptimizedShooting(Δt=0.01, n=3)
+ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [0.15, 0.2, 3.5])
 res = periodic_orbit(ds, alg, ig)
 plot_result(res, ds; azimuth = 1.3pi, elevation=0.1pi)
 ```
