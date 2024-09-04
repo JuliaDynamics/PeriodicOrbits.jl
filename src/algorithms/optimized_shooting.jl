@@ -6,7 +6,7 @@ using NonlinearSolve
 """
     OptimizedShooting(; kwargs...)
 
-A shooting method [Dednam2014](@cite) combined with Levenberg-Marquardt optimization 
+A shooting method [Dednam2014](@cite) that uses Levenberg-Marquardt optimization 
 to find periodic orbits of continuous-time dynamical systems.
 
 ## Keyword arguments
@@ -36,7 +36,7 @@ where ``T`` is unknown period of a periodic orbit and ``x(t)`` is a solution at 
 given some unknown initial point. Initial guess of the period ``T`` and the initial point 
 is optimized by the Levenberg-Marquardt algorithm.
 
-In our implementation keyword argument `n` corresponds to ``n`` in the residual ``R``. 
+In our implementation, the keyword argument `n` corresponds to ``n`` in the residual ``R``. 
 The keyword argument `Δt` corresponds to ``\\Delta t`` in the residual ``R``.
 """
 @kwdef struct OptimizedShooting{T} <: PeriodicOrbitFinder
