@@ -44,23 +44,35 @@ end
 """
     PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; kwargs...) → po
 
-Given a point `u0` in the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
-the remaining points of the orbit are computed and stored in the `points` field of the returned `PeriodicOrbit`.
-In case of continuous-time dynamical systems, the orbit which contains infinetely many points is approximated by a grid with step 
+Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
+the remaining points of the orbit are computed and stored in the `points` field of the returned `po::PeriodicOrbit`.
+In case of continuous-time dynamical systems, the orbit which contains infinitely many points is approximated by a trajectory with step 
 `Δt` and the points are stored in `po.points`. In case of discrete-time dynamical systems, the orbit is 
 obtained by iterating the periodic point `T-1` times and the points are stored in `po.points`.
-Local stability of the periodic orbit is determined and stored in the `po.stable` field.
-For determining the stability, the Jacobian matrix `jac` is used. The default Jacobian is 
-obtained by automatic differentiation.
 
 ## Keyword arguments
 
-* `jac` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation. For more details, see `jacobian`.
+* `minimal_period = true` : If set to `true`, period `po.T` is set to minimal period. Otherwise 
+  `po.T` is set to `T`.
+* `stability = true` : If set to `true`, the stability of the periodic orbit `po.stable` will 
+  be determined. Otherwise `po.stable` is set to `missing`. Stability checking uses the 
+  Jacobian matrix of the dynamical rule. To provide your own Jacobian, see keyword argument 
+  `jac`.
+* `jac = jacobian(ds)` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation.
 
 """
-function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
-    minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
-    return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, _isstable(ds, u0, minT, jac))
+function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds), minimal_period=true, stability=true)
+    # TODO: allow passing kwargs to _minimal_period and _isstable
+    minT = T
+    if minimal_period
+        minT = _minimal_period(ds, u0, T)
+    end
+
+    stable = missing
+    if stability
+        stable = _isstable(ds, u0, minT, jac)
+    end
+    return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, stable)
 end
 
 """
