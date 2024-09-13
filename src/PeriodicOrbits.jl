@@ -6,6 +6,9 @@ using Reexport
 
 # exports:
 include("api.jl")
+include("stability.jl")
+include("minimal_period.jl")
+include("pretty_printing.jl")
 include("lambdamatrix.jl")
 include("po_datastructure.jl")
 include("algorithms/davidchack_lai.jl")
