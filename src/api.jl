@@ -71,15 +71,6 @@ function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=discrete_timestep), T, stable)
 end
 
-function PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::AbstractFloat, stable::Union{Bool, Missing})
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, stable)
-end
-
-function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, stable::Union{Bool, Missing})
-    discrete_timestep = 1
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=discrete_timestep), T, stable)
-end
-
 """
 Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit detection algorithms.
 """
