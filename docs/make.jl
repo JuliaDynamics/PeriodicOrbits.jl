@@ -4,13 +4,22 @@ using PeriodicOrbits
 
 pages = [
     "index.md",
+    "algorithms.md",
+    "references.md"
 ]
 
-import Downloads
-Downloads.download(
-    "https://raw.githubusercontent.com/JuliaDynamics/doctheme/master/build_docs_with_style.jl",
-    joinpath(@__DIR__, "build_docs_with_style.jl")
-)
+# import Downloads
+# Downloads.download(
+#     "https://raw.githubusercontent.com/JuliaDynamics/doctheme/master/build_docs_with_style.jl",
+#     joinpath(@__DIR__, "build_docs_with_style.jl")
+# )
 include("build_docs_with_style.jl")
 
-build_docs_with_style(pages, PeriodicOrbits)
+using DocumenterCitations
+
+bib = CitationBibliography(
+    joinpath(@__DIR__, "refs.bib");
+    style=:authoryear
+)
+
+build_docs_with_style(pages, PeriodicOrbits; bib)

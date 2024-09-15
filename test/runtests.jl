@@ -8,4 +8,5 @@ testfile(file, testname=defaultname(file)) = @testset "$testname" begin; include
     testfile("api.jl")
     testfile("stability.jl")
     testfile("minimal_period.jl")
+    testfile("algorithms/optimized_shooting.jl")
 end
