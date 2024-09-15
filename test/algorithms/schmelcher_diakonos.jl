@@ -73,6 +73,7 @@ indss = [[1,2]] # <- must be container of vectors!!!
 @testset "order = $o" for o in [2, 3]
     alg = SchmelcherDiakonos(o=o, λs=λs, indss=indss, signss=signss)
     POs = periodic_orbits(ds, alg, ics)
+    POs = uniquepos(POs, atol=1e-6)
     for po in POs
         point = po.points[1]
         @test round(point[1], digits = 4) ∈ ox[o]
