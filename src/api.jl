@@ -15,8 +15,8 @@ using LinearAlgebra: norm
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
 
-    * `u0` - guess of a point in the periodic orbit
-    * `T` - guess of period of the orbit
+* `u0` - guess of a point in the periodic orbit
+* `T` - guess of period of the orbit
 """
 struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
     u0::U
@@ -28,51 +28,47 @@ InitialGuess(ds::DynamicalSystem, T=nothing) = InitialGuess(current_state(ds), T
 """
 A structure that contains information about a periodic orbit.
 
-    * `points::StateSpaceSet` - points in the periodic orbit. This container 
-     always holds the whole orbit. Given a point `u` in the periodic orbit,
-    the rest of the orbit is obtained with `complete_orbit`. 
-    * `T::Real` - the period of the orbit
-    * `stable::Bool` - local stability of the periodic orbit
+* `points::StateSpaceSet` - points in the periodic orbit. This container 
+  always holds the whole orbit. Given a point `u` in the periodic orbit, the rest of the 
+  orbit is obtained with `complete_orbit`. 
+* `T::Real` - the period of the orbit
+* `stable::Union{Bool, Nothing}` - local stability of the periodic orbit. Unknown stability 
+  is set to `nothing`.
 
 """
 struct PeriodicOrbit{D, B, R<:Real}
     points::StateSpaceSet{D, B}
     T::R
-    stable::Union{Bool, Missing}
+    stable::Union{Bool, Nothing}
 end
 
 """
-    PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; kwargs...) → po
+    PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
+        T::AbstractFloat, Δt=0.1, stable=nothing) → po
 
-Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` of the orbit,
-the remaining points of the orbit are computed and stored in the `points` field of the returned `po::PeriodicOrbit`.
-In case of continuous-time dynamical systems, the orbit which contains infinitely many points is approximated by a trajectory with step 
-`Δt` and the points are stored in `po.points`. In case of discrete-time dynamical systems, the orbit is 
-obtained by iterating the periodic point `T-1` times and the points are stored in `po.points`.
-
-## Keyword arguments
-
-* `minimal_period = true` : If set to `true`, period `po.T` is set to minimal period. Otherwise 
-  `po.T` is set to `T`.
-* `stability = true` : If set to `true`, the stability of the periodic orbit `po.stable` will 
-  be determined. Otherwise `po.stable` is set to `missing`. Stability checking uses the 
-  Jacobian matrix of the dynamical rule. To provide your own Jacobian, see keyword argument 
-  `jac`.
-* `jac = jacobian(ds)` : Jacobian matrix of the dynamical system. Default is obtained by automatic differentiation.
+Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
+of the orbit, the remaining points of the orbit are computed and stored in the `points` 
+field of the returned `po::PeriodicOrbit`. The orbit which contains infinitely many points
+ is approximated by calculating a trajectory with step `Δt`. The trajectory is stored in 
+ `po.points`. 
+"""
+function PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
+    T::AbstractFloat, Δt=0.01, stable::Union{Bool, Nothing}=nothing)
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, stable)
+end
 
 """
-function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds), minimal_period=true, stability=true)
-    # TODO: allow passing kwargs to _minimal_period and _isstable
-    minT = T
-    if minimal_period
-        minT = _minimal_period(ds, u0, T)
-    end
+    PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
+        T::Integer, stable=nothing) → po
 
-    stable = missing
-    if stability
-        stable = _isstable(ds, u0, minT, jac)
-    end
-    return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, stable)
+Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
+of the orbit, the remaining points of the orbit are computed and stored in the `points` 
+field of the returned `po::PeriodicOrbit`. The orbit is obtained by iterating the periodic 
+point `T-1` times and the points are stored in `po.points`.
+"""
+function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, stable::Union{Bool, Nothing}=nothing)
+    discrete_timestep = 1
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=discrete_timestep), T, stable)
 end
 
 """
