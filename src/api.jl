@@ -1,5 +1,5 @@
-export InitialGuess, 
-    PeriodicOrbit, 
+export InitialGuess,
+    PeriodicOrbit,
     PeriodicOrbitFinder,
     isdiscretetime,
     complete_orbit,
@@ -59,7 +59,8 @@ obtained by automatic differentiation.
 
 """
 function PeriodicOrbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real, Δt=1; jac=jacobian(ds))
-    minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    # minT = _minimal_period(ds, u0, T) # TODO: allow passing kwargs to _minimal_period
+    minT = T # TODO: ensure that minT is precise enough
     return PeriodicOrbit(complete_orbit(ds, u0, minT; Δt=Δt), minT, _isstable(ds, u0, minT, jac))
 end
 
@@ -96,10 +97,10 @@ end
 Return `true` if the periodic orbit belongs to a discrete-time dynamical system
 `false` if it belongs to a continuous-time dynamical system.
 """
-function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D, B, R}) where {D, B, R <: Integer}
+function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:Integer}
     true
 end
-function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D, B, R}) where {D, B, R <: AbstractFloat}
+function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:AbstractFloat}
     false
 end
 
@@ -119,9 +120,9 @@ function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real;
     isdiscrete = isdiscretetime(ds)
     isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems")) 
     traj, _ = trajectory(
-        ds, 
-        isdiscrete ? T-1 : T, 
-        u0; 
+        ds,
+        isdiscrete ? T - 1 : T,
+        u0;
         Δt=Δt
     )
     return traj
@@ -140,7 +141,7 @@ Euclidean distance between any pair of points where one point belongs to `po1` a
 For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
-function podistance(po1, po2, distance = StrictlyMinimumDistance(true, Euclidean()))
+function podistance(po1, po2, distance=StrictlyMinimumDistance(true, Euclidean()))
     type1 = isdiscretetime(po1)
     type2 = isdiscretetime(po2)
     if type1 == type2
@@ -169,11 +170,11 @@ For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
 function poequal(
-        po1::PeriodicOrbit, po2::PeriodicOrbit;
-        Tthres = 1e-3,
-        dthres = 1e-3,
-        distance = StrictlyMinimumDistance(true, Euclidean())
-    )
+    po1::PeriodicOrbit, po2::PeriodicOrbit;
+    Tthres=1e-3,
+    dthres=1e-3,
+    distance=StrictlyMinimumDistance(true, Euclidean())
+)
     if abs(po1.T - po2.T) > Tthres
         return false
     end
@@ -189,7 +190,7 @@ Return a vector of unique periodic orbits from the vector `pos` of periodic orbi
 By unique we mean that the distance between any two periodic orbits in the vector is 
 greater than `atol`. To see details about the distance function, see `podistance`.
 """
-function uniquepos(pos::Vector{PeriodicOrbit{D, B, R}}, atol::Real=1e-6) where {D, B, R}
+function uniquepos(pos::Vector{PeriodicOrbit{D,B,R}}, atol::Real=1e-6) where {D,B,R}
     length(pos) == 0 && return pos
     unique_pos = typeof(pos[end])[]
     pos = copy(pos)
