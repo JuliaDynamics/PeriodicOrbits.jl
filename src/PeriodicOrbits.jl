@@ -17,7 +17,6 @@ include("stability.jl")
 include("minimal_period.jl")
 include("pretty_printing.jl")
 include("lambdamatrix.jl")
-include("po_datastructure.jl")
 include("algorithms/schmelcher_diakonos.jl")
 include("algorithms/optimized_shooting.jl")
 

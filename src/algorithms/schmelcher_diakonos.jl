@@ -9,7 +9,8 @@ proposed by Schmelcher & Diakonos [^Schmelcher1997].
 
 Possible constructors are:
 
-    1. `SchmelcherDiakonos(o::Int64, λs::Vector{Float64}, indss::Vector{Vector{Int64}}, signss::Vector{BitVector}; kwargs...)`
+    1. `SchmelcherDiakonos(o::Int64, λs::Vector{Float64}, indss::Vector{Vector{Int64}},
+      signss::Vector{Vector{Int64}}; kwargs...)`
     2. `SchmelcherDiakonos(o::Int64, dim::Int64, λ::Float64=0.001; kwargs...)`
 
 Where arguments are:
@@ -22,11 +23,12 @@ Where arguments are:
 
 ## Keyword arguments
 
-* `maxiters` = maximum amount of iterations an initial guess will be iterated before claiming it has not converged
-* `inftol` = if a state reaches `norm(state) ≥ inftol` it is assumed that it has escaped to infinity (and is thus abandoned)
-* `disttol` = distance tolerance. If the 2-norm of a previous state with the next one is `≤ disttol` then it has converged to a fixed point
-* `roundtol` = nothing. This keyword has been removed in favor of `abstol`
-* `abstol` = a detected fixed point isn't stored if it is in `abstol` neighborhood of some previously detected point. Distance is measured by euclidian norm. If you are getting duplicate fixed points, decrease this value
+* `maxiters` = maximum amount of iterations an initial guess will be iterated before 
+  claiming it has not converged
+* `inftol` = if a state reaches `norm(state) ≥ inftol` it is assumed that it has escaped to 
+  infinity (and is thus abandoned)
+* `disttol` = distance tolerance. If the 2-norm of a previous state with the next one 
+  is `≤ disttol` then it has converged to a fixed point
 
 ## Description
 
@@ -53,66 +55,45 @@ long computation times.
     o::Int64
     λs::Vector{Float64}
     indss::Vector{Vector{Int64}}
-    signss::Vector{BitVector}
+    signss::Vector{Vector{Int64}}
     maxiters::Int64 = 1000
     disttol::Float64 = 1e-10
     inftol::Float64 = 10.0
-    roundtol :: Nothing = nothing
-    abstol::Float64 = 1e-8
 end
-
-function SchmelcherDiakonos(o::Int64, λs::Vector{Float64}, indss::Vector{Vector{Int64}}, signss::Vector{BitVector}; kwargs...)
-    return SchmelcherDiakonos(o=o, λs=λs, indss=indss, signss=signss;kwargs...)
-end
-
-function SchmelcherDiakonos(o::Int64, dim::Int64, λ::Float64=0.01; kwargs...)
-    inds = randperm(dim)
-    signs = rand(Bool, dim)
-    return SchmelcherDiakonos(o=o, λs=[λ], indss=[inds], signss=[signs]; kwargs...)
-end
-
-function check_parameters(alg::SchmelcherDiakonos)
-    if !isnothing(alg.roundtol)
-        warn("`roundtol` keyword has been removed in favor of `abstol`")
-    end
-end
-
 
 function periodic_orbits(ds::DiscreteTimeDynamicalSystem, alg::SchmelcherDiakonos, igs::Vector{InitialGuess})
-    check_parameters(alg)
-
     type = typeof(current_state(ds))
-    POs = Set{type}()
+    POs = type[]
     for λ in alg.λs, inds in alg.indss, sings in alg.signss
         Λ = lambdamatrix(λ, inds, sings)
-        _periodicorbits!(POs, ds, alg, igs, Λ)
+        _periodic_orbits!(POs, ds, alg, igs, Λ)
     end
-    po = PeriodicOrbit[PeriodicOrbit{type, Int64}([fp], alg.o) for fp in POs]
+    po = PeriodicOrbit[PeriodicOrbit(ds, fp, alg.o, missing) for fp in POs]
     return po
 end
 
 
-function _periodicorbits!(POs, ds, alg, igs, Λ)
+function _periodic_orbits!(POs, ds, alg, igs, Λ)
     igs = [ig.u0 for ig in igs]
-    for st in igs
-        reinit!(ds, st)
-        prevst = st
+    for ig in igs
+        reinit!(ds, ig)
+        previg = ig
         for _ in 1:alg.maxiters
-            prevst, st = Sk(ds, prevst, alg.o, Λ)
-            norm(st) > alg.inftol && break
+            previg, ig = Sk(ds, previg, alg.o, Λ)
+            norm(ig) > alg.inftol && break
 
-            if norm(prevst - st) < alg.disttol
-                storefp!(POs, st, alg.abstol)
+            if norm(previg - ig) < alg.disttol
+                push!(POs, ig)
                 break
             end
-            prevst = st
+            previg = ig
         end
     end
 end
 
-function Sk(ds, prevst, o, Λ)
-    reinit!(ds, prevst)
+function Sk(ds, state, o, Λ)
+    reinit!(ds, state)
     step!(ds, o)
     # TODO: For IIP systems optimizations can be done here to not re-allocate vectors...
-    return prevst, prevst + Λ*(current_state(ds) .- prevst)
+    return state, state + Λ*(current_state(ds) .- state)
 end
