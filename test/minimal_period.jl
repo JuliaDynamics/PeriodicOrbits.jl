@@ -32,8 +32,6 @@ end
     po = PeriodicOrbit(ds, u0, n*T, 0.01)
     minT_po = minimal_period(ds, po)
     @test length(po.points) == length(minT_po.points)
-    println(po.stable)
-    println(minT_po.stable)
     @test po.stable == minT_po.stable
     @test isapprox(T, minT_po.T; atol=1e-4)
 end
