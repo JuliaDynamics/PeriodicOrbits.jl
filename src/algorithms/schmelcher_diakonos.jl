@@ -7,15 +7,15 @@ using LinearAlgebra: norm
     SchmelcherDiakonos(; kwargs...)
 
 Detect periodic orbits of `ds <: DiscreteTimeDynamicalSystem` using algorithm
-proposed by Schmelcher & Diakonos [^Schmelcher1997].
+proposed by Schmelcher & Diakonos [Schmelcher1997](@cite).
 
 ## Keyword arguments
 
-* `o` : order of the periodic orbit
-* `λs` : vector of λ parameters, see [^Schmelcher1997] for details
+* `o` : period of the periodic orbit
+* `λs` : vector of λ parameters, see [Schmelcher1997](@cite) for details
 * `indss` : vector of vectors of indices for the permutation matrix
 * `signss` : vector of vectors of signs for the permutation matrix
-* `maxiters=1000` : maximum amount of iterations an initial guess will be iterated before 
+* `maxiters=10000` : maximum amount of iterations an initial guess will be iterated before 
   claiming it has not converged
 * `inftol=10.0` : if a state reaches `norm(state) ≥ inftol` it is assumed that it has 
   escaped to infinity (and is thus abandoned)
@@ -39,16 +39,13 @@ possible ``\\mathbf{\\Lambda}_k``.
 *All* initial guesses are
 evolved for *all* ``\\mathbf{\\Lambda}_k`` which can very quickly lead to
 long computation times.
-
-[^Schmelcher1997]:
-    P. Schmelcher & F. K. Diakonos, Phys. Rev. Lett. **78**, pp 4733 (1997)
 """
 @kwdef struct SchmelcherDiakonos <: PeriodicOrbitFinder
     o::Int64
     λs::Vector{Float64}
     indss::Vector{Vector{Int64}}
     signss::Vector{Vector{Int64}}
-    maxiters::Int64 = 1000
+    maxiters::Int64 = 10000
     disttol::Float64 = 1e-10
     inftol::Float64 = 10.0
 end
