@@ -7,3 +7,4 @@ Manifest.toml
 *style.jl
 *.scss
 *.css
+!docs/build_docs_with_style.jl
