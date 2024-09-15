@@ -37,7 +37,7 @@ end
         period3window = [[x] for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]]
         r = 2.3
         set_parameters!(ds, [r])
-        fp = isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1, 1), jacob).stable
+        fp = isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable
         @test fp == true
         @test typeof(fp) == Bool
 
