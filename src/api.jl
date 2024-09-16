@@ -122,7 +122,7 @@ end
 
 Given point `u0` on the periodic orbit with period `T`, compute the remaining points of the 
 periodic orbit. For POs of discrete-time systems, it means iterating the periodic point 
-`po.T` times. For POs of continuous-time systems, it means integrating the system for 
+`po.T - 1` times. For POs of continuous-time systems, it means integrating the system for 
 duration `po.T` with stepsize `Δt`.
 
 ## Keyword arguments
