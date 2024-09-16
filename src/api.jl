@@ -2,7 +2,6 @@ export InitialGuess,
     PeriodicOrbit,
     PeriodicOrbitFinder,
     isdiscretetime,
-    complete_orbit,
     podistance,
     uniquepos,
     poequal,
@@ -15,8 +14,8 @@ using LinearAlgebra: norm
 """
 A structure that contains an initial guess for a periodic orbit detection algorithms.
 
-* `u0` - guess of a point in the periodic orbit
-* `T` - guess of period of the orbit
+* `u0::AbstractArray{Real}` - guess of a point in the periodic orbit
+* `T::Union{Real, Nothing}` - guess of period of the orbit
 """
 struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
     u0::U
@@ -28,9 +27,8 @@ InitialGuess(ds::DynamicalSystem, T=nothing) = InitialGuess(current_state(ds), T
 """
 A structure that contains information about a periodic orbit.
 
-* `points::StateSpaceSet` - points in the periodic orbit. This container 
-  always holds the whole orbit. Given a point `u` in the periodic orbit, the rest of the 
-  orbit is obtained with `complete_orbit`. 
+* `points::StateSpaceSet` - points of the periodic orbit. This container 
+  always holds the whole orbit.
 * `T::Real` - the period of the orbit
 * `stable::Union{Bool, Nothing}` - local stability of the periodic orbit. Unknown stability 
   is set to `nothing`.
@@ -72,7 +70,10 @@ function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real
 end
 
 """
-Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit detection algorithms.
+Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit 
+detection algorithms. Each of the concrete subtypes of `PeriodicOrbitFinder` should 
+represent one given algorithm for detecting periodic orbits. This subtype will include 
+all the necessary parameters for the algorithm to work and optionally their default values. 
 """
 abstract type PeriodicOrbitFinder end
 
@@ -101,8 +102,8 @@ end
 """
     isdiscretetime(po::PeriodicOrbit) → true/false
 
-Return `true` if the periodic orbit belongs to a discrete-time dynamical system
-`false` if it belongs to a continuous-time dynamical system.
+Return `true` if the periodic orbit belongs to a discrete-time dynamical system, `false` if 
+it belongs to a continuous-time dynamical system.
 """
 function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:Integer}
     true
@@ -115,13 +116,15 @@ end
 """
     complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
-Complete the periodic orbit `po` of period `po.T`. For POs of discrete systems, it means iterating 
-the periodic point `po.T` times. For POs of continuous-time systems, it means integrating the system for 
-`po.T` time units with step `Δt`. For POs of discrete-time systems `Δt` must be equal to `1`. 
+Given point `u0` on the periodic orbit with period `T`, compute the remaining points of the 
+periodic orbit. For POs of discrete-time systems, it means iterating the periodic point 
+`po.T` times. For POs of continuous-time systems, it means integrating the system for 
+duration `po.T` with stepsize `Δt`.
 
 ## Keyword arguments
 
-* `Δt` : step size for continuous-time systems.
+* `Δt` : integration/iteration stepsize. For POs of discrete-time systems `Δt` must be 
+  equal to `1`.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
@@ -140,11 +143,11 @@ end
     podistance(po1::PeriodicOrbit, po2::PeriodicOrbit, [, distance]) → Real
 
 Compute the distance between two periodic orbits `po1` and `po2`. 
-Periodic orbits`po1` and `po2` and the dynamical system `ds` all have to 
+Periodic orbits `po1` and `po2` and the dynamical system `ds` all have to 
 be either discrete-time or continuous-time.
 Distance between the periodic orbits is computed using the given distance function `distance`.
 The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
-Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
+Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2`. 
 For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
@@ -166,15 +169,15 @@ Return `true` if the periodic orbits `po1` and `po2` are equal within the given 
 
 ## Keyword arguments
 
-* `Tthres` : distance between periodic orbits must be less than this threshold
-* `dthres` : difference in periods of the periodic orbits must be less than this threshold
+* `Tthres=1e-3` : difference in periods of the periodic orbits must be less than this threshold
+* `dthres=1e-3` : distance between periodic orbits must be less than this threshold
 * `distance` : distance function used to compute the distance between the periodic orbits
 
 Distance between the orbits is computed using the given distance function `distance`.
-The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
-Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2``. 
-For other options of the distance function, see `StateSpaceSets.set_distance`.
-Custom distance function can be provided as well.
+The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds 
+the minimal Euclidean distance between any pair of points where one point belongs to `po1` 
+and the other to `po2`. For other options of the distance function, see 
+`StateSpaceSets.set_distance`. Custom distance function can be provided as well.
 """
 function poequal(
     po1::PeriodicOrbit, po2::PeriodicOrbit;
@@ -182,11 +185,12 @@ function poequal(
     dthres=1e-3,
     distance=StrictlyMinimumDistance(true, Euclidean())
 )
-    if abs(po1.T - po2.T) > Tthres
+    if abs(po1.T - po2.T) < Tthres
+        d = podistance(po1, po2, distance)
+        return d < dthres
+    else
         return false
     end
-    d = podistance(po1, po2, distance)
-    return d < dthres
 end
 
 
@@ -195,7 +199,7 @@ end
 
 Return a vector of unique periodic orbits from the vector `pos` of periodic orbits.
 By unique we mean that the distance between any two periodic orbits in the vector is 
-greater than `atol`. To see details about the distance function, see `podistance`.
+greater than `atol`. To see details about the distance function, see [`podistance`](@ref).
 """
 function uniquepos(pos::Vector{PeriodicOrbit{D,B,R}}, atol::Real=1e-6) where {D,B,R}
     length(pos) == 0 && return pos

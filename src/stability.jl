@@ -20,7 +20,7 @@ monodromy matrix. If the maximum absolute value of the Floquet multipliers is le
 `1` (while neglecting the multiplier which is always 1), the periodic orbit is marked 
  as stable.
 
-The default value of jacobian rule `jac` is obtained via automatic differentiation.
+The default value of jacobian rule `jac` is obtained via automatic differentiation, see [`jacobian`](@ref).
 """
 function isstable(ds::CoreDynamicalSystem, po::PeriodicOrbit, jac=jacobian(ds))
     u0 = po.points[1]

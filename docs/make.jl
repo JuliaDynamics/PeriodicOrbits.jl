@@ -1,9 +1,11 @@
 cd(@__DIR__)
 
 using PeriodicOrbits
+using PeriodicOrbits.DynamicalSystemsBase
 
 pages = [
     "index.md",
+    "api.md",
     "algorithms.md",
     "references.md"
 ]
@@ -22,4 +24,4 @@ bib = CitationBibliography(
     style=:authoryear
 )
 
-build_docs_with_style(pages, PeriodicOrbits; bib)
+build_docs_with_style(pages, PeriodicOrbits, DynamicalSystemsBase; bib)
