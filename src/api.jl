@@ -30,7 +30,7 @@ InitialGuess(ds::DynamicalSystem, T=nothing) = InitialGuess(current_state(ds), T
 A structure that contains information about a periodic orbit.
 
 * `points::StateSpaceSet` - points of the periodic orbit. This container 
-  always holds the whole orbit.
+  always holds the complete orbit.
 * `T::Real` - the period of the orbit
 * `stable::Union{Bool, Nothing}` - local stability of the periodic orbit. Unknown stability 
   is set to `nothing`.
