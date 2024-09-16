@@ -16,7 +16,8 @@ using LinearAlgebra: norm
 A structure that contains an initial guess for a periodic orbit detection algorithms.
 
 * `u0::AbstractArray{<:Real}` - guess of a point in the periodic orbit
-* `T::Union{Real, Nothing}` - guess of period of the orbit
+* `T::Union{Real, Nothing}` - guess of period of the orbit. Some algorithms do not require 
+  the period guess to be given, in which case `T` is set to `nothing`.
 """
 struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
     u0::U
