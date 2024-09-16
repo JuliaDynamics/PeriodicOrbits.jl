@@ -7,7 +7,7 @@ PeriodicOrbit
 minimal_period
 isstable
 ```
-For clarity, here is the docstring for a [`jacobian`](@ref) function from `DynamicalSystemsBase.jl` 
+For clarity, here is the docstring for a [`jacobian`](@ref) function from DynamicalSystemsBase.jl
 which is used for generating jacobians of dynamical rules via automatic differentiation.
 ```@docs
 jacobian
