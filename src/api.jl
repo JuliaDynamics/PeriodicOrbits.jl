@@ -72,7 +72,9 @@ function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real
 end
 
 """
-Abstract type `PeriodicOrbitFinder` represents a supertype for all the periodic orbit 
+    PeriodicOrbitFinder
+    
+Supertype for all the periodic orbit 
 detection algorithms. Each of the concrete subtypes of `PeriodicOrbitFinder` should 
 represent one given algorithm for detecting periodic orbits. This subtype will include 
 all the necessary parameters for the algorithm to work and optionally their default values. 
