@@ -127,8 +127,8 @@ duration `po.T` with stepsize `Δt`.
 
 ## Keyword arguments
 
-* `Δt` : integration/iteration stepsize. For POs of discrete-time systems `Δt` must be 
-  equal to `1`.
+* `Δt` : integration/iteration stepsize. For discrete-time systems this is ignored as it is 
+  always 1.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
     isdiscrete = isdiscretetime(ds)
