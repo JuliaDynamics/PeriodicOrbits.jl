@@ -44,7 +44,7 @@ end
 
 """
     PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
-        T::AbstractFloat, Δt=0.1, stable=nothing) → po
+        T::AbstractFloat, Δt=0.01, stable=nothing) → po
 
 Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
 of the orbit, the remaining points of the orbit are computed and stored in the `points` 
