@@ -47,7 +47,7 @@ function _set_period(ds::DynamicalSystem, po, newT)
         return po
     else
         # ensure that continuous po has the same amount of points
-        isdiscretetime(ds) ? Δt = 1 : Δt = newT/(length(po.points)-1)
+        isdiscretetime(ds) ? Δt = 1 : Δt = newT/default_Δt_partition
         return PeriodicOrbit(complete_orbit(ds, po.points[1], newT; Δt=Δt), newT, po.stable)
     end
 end

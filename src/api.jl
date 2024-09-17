@@ -44,7 +44,7 @@ end
 
 """
     PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
-        T::AbstractFloat, Δt=0.01, stable=nothing) → po
+        T::AbstractFloat, Δt=T/$(default_Δt_partition), stable=nothing) → po
 
 Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
 of the orbit, the remaining points of the orbit are computed and stored in the `points` 
@@ -53,7 +53,7 @@ field of the returned `po::PeriodicOrbit`. The orbit which contains infinitely m
  `po.points`. 
 """
 function PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
-    T::AbstractFloat, Δt=0.01, stable::Union{Bool, Nothing}=nothing)
+    T::AbstractFloat, Δt=T/default_Δt_partition, stable::Union{Bool, Nothing}=nothing)
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, stable)
 end
 
