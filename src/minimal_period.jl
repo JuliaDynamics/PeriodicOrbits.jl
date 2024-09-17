@@ -20,15 +20,16 @@ period is also called prime, principal or fundamental period.
 
 For discrete systems, a valid period would be any natural multiple of the minimal period. 
 Hence, all natural divisors of the period `po.T` are checked as a potential period. 
-A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between the initial point `u0` 
-and the final point is less than `atol`, the period of the orbit is `n`.
+A point `u0` of the periodic orbit `po` is iterated `n` times and if the distance between 
+the initial point `u0` and the final point is less than `atol`, the period of the orbit 
+is `n`.
 
 For continuous systems, a point `u0` of the periodic orbit is integrated for a very short 
-time. The resulting point `u1` is used to create a normal vector 
-`a=(u1-u0)`. A Poincare map is created using this normal vector. Using the Poincare 
-map, the hyperplane crossings are checked. Time of the first crossing that 
-is within `atol` distance of the initial point `u0` is the minimal period.
-At most `maxiter` crossings are checked.
+time. The resulting point `u1` is used to create a normal vector `a=(u1-u0)` to a hyperplane 
+perpendicular to the trajectory at `u0`. A Poincare map is created using 
+this hyperplane. Using the Poincare map, the hyperplane crossings are checked. Time of the 
+first crossing that is within `atol` distance of the initial point `u0` is the minimal 
+period. At most `maxiter` crossings are checked.
 """
 function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kwargs...)
     type1 = isdiscretetime(ds)
@@ -46,7 +47,7 @@ function _set_period(ds::DynamicalSystem, po, newT)
         return po
     else
         # ensure that continuous po has the same amount of points
-        isdiscretetime(ds) ? Δt = 1 : Δt = newT/(length(po.points)-1)
+        isdiscretetime(ds) ? Δt = 1 : Δt = newT/default_Δt_partition
         return PeriodicOrbit(complete_orbit(ds, po.points[1], newT; Δt=Δt), newT, po.stable)
     end
 end
