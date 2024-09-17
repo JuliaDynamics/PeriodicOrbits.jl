@@ -10,6 +10,7 @@ end PeriodicOrbits
 using Reexport
 @reexport using DynamicalSystemsBase
 
+const default_Δt_partition = 100
 
 # exports:
 include("api.jl")
