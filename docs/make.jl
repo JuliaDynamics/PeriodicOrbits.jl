@@ -1,9 +1,15 @@
 cd(@__DIR__)
 
 using PeriodicOrbits
+using PeriodicOrbits.DynamicalSystemsBase
 
 pages = [
     "index.md",
+    "tutorial.md",
+    "api.md",
+    "algorithms.md",
+    "developer.md",
+    "references.md"
 ]
 
 import Downloads
@@ -13,4 +19,11 @@ Downloads.download(
 )
 include("build_docs_with_style.jl")
 
-build_docs_with_style(pages, PeriodicOrbits)
+using DocumenterCitations
+
+bib = CitationBibliography(
+    joinpath(@__DIR__, "refs.bib");
+    style=:authoryear
+)
+
+build_docs_with_style(pages, PeriodicOrbits, DynamicalSystemsBase; bib)
