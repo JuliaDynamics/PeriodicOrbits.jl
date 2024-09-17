@@ -5,8 +5,10 @@ using PeriodicOrbits.DynamicalSystemsBase
 
 pages = [
     "index.md",
+    "tutorial.md",
     "api.md",
     "algorithms.md",
+    "developer.md",
     "references.md"
 ]
 
