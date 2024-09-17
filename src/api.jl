@@ -123,7 +123,7 @@ end
 Given point `u0` on the periodic orbit with period `T`, compute the remaining points of the 
 periodic orbit. For POs of discrete-time systems, it means iterating the periodic point 
 `po.T - 1` times. For POs of continuous-time systems, it means integrating the system for 
-duration `po.T` with stepsize `Δt`.
+duration `po.T - Δt` with stepsize `Δt`.
 
 ## Keyword arguments
 
@@ -135,7 +135,7 @@ function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real;
     isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems")) 
     traj, _ = trajectory(
         ds,
-        isdiscrete ? T - 1 : T,
+        T - Δt,
         u0;
         Δt=Δt
     )
