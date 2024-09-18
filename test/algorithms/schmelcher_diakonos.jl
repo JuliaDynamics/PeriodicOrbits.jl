@@ -3,7 +3,7 @@ using Test
 
 test_value = (val, vmin, vmax) -> @test vmin <= val <= vmax
 
-@testset "standard map" begin
+@testset "SchmelcherDiakonos" begin
 # Known fixed point locations from publication:
 o2x = [0.0
 0.0

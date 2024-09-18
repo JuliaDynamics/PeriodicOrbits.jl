@@ -130,3 +130,97 @@ Okay, this output is great, and we can tell that it is correct because:
 2. Besides fixed points of previous periods, *original* fixed points of
    period $n$ come in (possible multiples of) $2n$-sized pairs (see e.g. period 5).
    This is a direct consequence of the Poincaré–Birkhoff theorem.
+
+## Davidchack & Lai
+
+An extension of the [`SchmelcherDiakonos`](@ref) algorithm was proposed by Davidchack & Lai [Davidchack1999](@cite).
+It works similarly, but it uses smarter seeding and an improved transformation rule.
+
+```@docs
+DavidchackLai
+```
+
+#### Logistic Map example
+
+The idea of periodic orbits can be illustrated easily on 1D maps. Finding all periodic orbits of period
+$n$ is equivalent to finding all points $x$ such that $f^{n}(x)=x$, where $f^{n}$ is $n$-th composition of $f$. Hence, solving $f^{n}(x)-x=0$ yields such points. However, this is often impossible analytically. 
+Let's see how [`DavidchackLai`](@ref) deals with it:
+
+First let's start with finding periodic orbits with period $1$ to $6$ for the logistic map with parameter $3.72$.
+
+```@example MAIN
+using PeriodicOrbits
+using CairoMakie
+
+logistic_rule(x, p, n) = @inbounds SVector(p[1]*x[1]*(1 - x[1]))
+ds = DeterministicIteratedMap(logistic_rule, SVector(0.4), [3.72])
+seeds = InitialGuess[InitialGuess(SVector(i), nothing) for i in LinRange(0.0, 1.0, 10)]
+alg = DavidchackLai(n=9, m=6, abstol=1e-6, disttol=1e-12)
+output = periodic_orbits(ds, alg, seeds)
+output = uniquepos(output)
+```
+
+Let's plot the periodic orbits of period $6$. 
+
+```@example MAIN
+function ydata(ds, period, xdata)
+    ydata = typeof(current_state(ds)[1])[]
+    for x in xdata
+        reinit!(ds, x)
+        step!(ds, period)
+        push!(ydata, current_state(ds)[1])
+    end
+    return ydata
+end
+
+fig = Figure()
+x = LinRange(0.0, 1.0, 1000)
+period = 6
+period6 = filter(po -> po.T == period, output)
+fpsx = vcat([vec(po.points) for po in period6]...)
+y = ydata(ds, period, [SVector(x0) for x0 in x])
+fpsy = ydata(ds, period, fpsx)
+axis = Axis(fig[1, 1])
+axis.title = "Period $period"
+lines!(axis, x, x, color=:black, linewidth=0.8)
+lines!(axis, x, y, color = :blue, linewidth=1.7)
+scatter!(axis, [i[1] for i in fpsx], fpsy, color = :red, markersize=15)
+fig
+```
+Points $x$ which fulfill $f^{n}(x)=x$ can be interpreted as an intersection of the function $f^{n}(x)$ and the identity $x$. Our result is correct because all the points of the intersection between the identity and the logistic map were found.
+
+#### Henon Map example
+
+Let's try to use [`DavidchackLai`](@ref) in higher dimension. We will try to detect 
+all periodic points of Henon map of period `1` to `12`.
+
+```@example MAIN
+using PeriodicOrbits, CairoMakie
+using LinearAlgebra: norm
+
+function henon(u0=zeros(2); a = 1.4, b = 0.3)
+    return DeterministicIteratedMap(henon_rule, u0, [a,b])
+end
+henon_rule(x, p, n) = SVector{2}(1.0 - p[1]*x[1]^2 + x[2], p[2]*x[1])
+
+ds = henon()
+xs = LinRange(-3.0, 3.0, 10)
+ys = LinRange(-10.0, 10.0, 10)
+seeds = InitialGuess[InitialGuess(SVector{2}(x,y), nothing) for x in xs for y in ys]
+n = 12
+m = 6
+alg = DavidchackLai(n=n, m=m, abstol=1e-7, disttol=1e-10)
+output = periodic_orbits(ds, alg, seeds)
+output = uniquepos(output)
+
+fig = Figure()
+ax = Axis(fig[1,1])
+result = vcat([vec(po.points) for po in output]...)
+scatter!(ax, [x[1] for x in result], [x[2] for x in result], markersize=8, color=:blue)
+fig
+```
+
+The theory of periodic orbits states that UPOs form sort of a skeleton of the chaotic attractor. Our results supports this claim since it closely resembles the Henon attractor.
+
+Note that in this case parameter `m` has to be set to at least `6`. Otherwise, the algorithm 
+fails to detect orbits of higher periods correctly.

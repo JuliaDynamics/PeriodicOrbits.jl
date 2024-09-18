@@ -2,6 +2,72 @@ export DavidchackLai, periodic_orbits
 
 using LinearAlgebra: norm
 
+"""
+    DavidchackLai(; kwargs...)
+
+Find periodic orbits `fps` of periods `1` to `n` for the map `ds`
+using the algorithm propesed by Davidchack & Lai[Davidchack1999](@cite).
+`ics` is a collection of initial conditions (container of vectors) to be evolved.
+`ics` will be used to detect periodic orbits of periods `1` to `m`. These `m` 
+periodic orbits will be used to detect periodic orbits of period `m+1` to `n`.
+`fps` is a vector with `n` elements. `i`-th element is a periodic orbit of period `i`.
+
+## Keyword arguments
+
+* `β = nothing`: If it is nothing, then `β(n) = 10*1.2^n`. Otherwise can be a 
+   function that takes period `n` and return a number. It is a parameter mentioned
+   in the paper[Davidchack1999](@cite).
+* `maxiters = nothing`: If it is nothing, then initial condition will be iterated
+  `max(100, 4*β(p))` times (where `p` is the period of the periodic orbit)
+   before claiming it has not converged. If an integer, then it is the maximum 
+   amount of iterations an initial condition will be iterated before claiming 
+   it has not converged.
+* `disttol = 1e-10`: Distance tolerance. If `norm(f^{n}(x)-x) < disttol` 
+   where `f^{n}` is the `n`-th iterate of the dynamic rule `f`, then `x` 
+   is an `n`-periodic point.
+* `abstol = 1e-8`: A detected periodic point isn't stored if it is in `abstol` 
+   neighborhood of some previously detected point. Distance is measured by 
+   euclidian norm. If you are getting duplicate periodic points, increase this value.
+
+## Description
+
+The algorithm is an extension of Schmelcher & Diakonos[Schmelcher1997](@cite)
+implemented as [`SchmelcherDiakonos`](@ref).
+
+The algorithm can detect periodic orbits
+by turning fixed points of the original
+map `ds` to stable ones, through the transformation
+```math
+\\mathbf{x}_{n+1} = \\mathbf{x}_{n} + 
+[\\beta |g(\\mathbf{x}_{n})| C^{T} - J(\\mathbf{x}_{n})]^{-1} g(\\mathbf{x}_{n})
+```
+where
+```math
+g(\\mathbf{x}_{n}) = f^{n}(\\mathbf{x}_{n}) - \\mathbf{x}_{n}
+```
+and
+```math
+J(\\mathbf{x}_{n}) = \\frac{\\partial g(\\mathbf{x}_{n})}{\\partial \\mathbf{x}_{n}}
+```
+
+The main difference between [`SchmelcherDiakonos`](@ref) and 
+[`DavidchackLai`](@ref) is that the latter uses periodic points of
+previous period as seeds to detect periodic points of the next period.
+Additionally, [`SchmelcherDiakonos`](@ref) only detects periodic points of a given period, 
+while `davidchacklai` detects periodic points of all periods up to `n`.
+
+
+## Important note
+
+For low periods `n` circa less than 6, you should select `m = n` otherwise the algorithm 
+won't detect periodic orbits correctly. For higher periods, you can select `m` as 6. 
+We recommend experimenting with `m` as it may depend on the specific problem. 
+Increase `m` in case the orbits are not being detected correctly.
+
+Initial conditions `ics` can be selected as a uniform grid of points in the state space or 
+subset of a chaotic trajectory.
+
+"""
 @kwdef struct DavidchackLai
     n::Int64
     m::Int64
@@ -39,7 +105,7 @@ function periodic_orbits(ds::DeterministicIteratedMap, alg::DavidchackLai, igs::
     initial_detection!(fps, ds, alg, igs, β, C_matrices)
     main_detection!(fps, ds, alg, β, C_matrices)
 
-    return output(fps, type, alg.n)
+    return output(ds, fps, type, alg.n)
 end
 
 function initial_detection!(fps, ds, alg, igs, β, C_matrices)
@@ -53,48 +119,35 @@ function main_detection!(fps, ds, alg, β, C_matrices)
         previousfps = fps[period-1]
         currentfps = fps[period]
         nextfps = fps[period+1]
-        for (container, seed, order) in [
+        for (container, seed, period) in [
             (currentfps, previousfps, period), 
             (nextfps, currentfps, period+1), 
             (currentfps, nextfps, period)
             ]
-            detect_orbits!(container, ds, alg, order, seed, β(period), C_matrices)
+            detect_orbits!(container, ds, alg, period, seed, β(period), C_matrices)
         end
     end
 end
 
-function _detect_orbits!(fps, ds, alg, i, igs, C, β)
+function _detect_orbits!(fps, ds, alg, T, igs, C, β)
     for x in igs
         x = x
         for _ in 1:(isnothing(alg.maxiters) ? max(100, 4*β) : alg.maxiters)
-            xn = DL_rule(x, β, C, ds, i)
-            if converged(ds, xn, i, alg.disttol)
-                if previously_detected(fps, xn, alg.abstol) == false
-                    completeorbit!(fps, ds, alg, xn, i)
+            xn = DL_rule(x, β, C, ds, T)
+            if norm(g(ds, xn, T)) < alg.disttol
+                if !iscontained(xn, fps, alg.abstol)
+                    push!(fps, xn)
+                    break
                 end
-                break
             end
             x = xn
         end
     end
 end
 
-function completeorbit!(fps, ds, alg, xn, i)
-    traj = trajectory(ds, i, xn)[1]
-    for t in traj
-        if converged(ds, t, i, alg.disttol)
-            storefp!(fps, t, alg.abstol)
-        end
-    end
-end
-
-function converged(ds, xn, n, disttol)
-    return norm(g(ds, xn, n)) < disttol
-end
-
-function detect_orbits!(fps, ds, alg, i, igs, β, C_matrices)
+function detect_orbits!(fps, ds, alg, T, igs, β, C_matrices)
     for C in C_matrices
-        _detect_orbits!(fps, ds, alg, i, igs, C, β)
+        _detect_orbits!(fps, ds, alg, T, igs, C, β)
     end
 end
 
@@ -115,23 +168,33 @@ function g(ds, state, n)
     return newst - state
 end
 
-function output(fps, type, n)
-    len = sum(length.(fps[1:n]))
-    po = Vector{PeriodicOrbit{type, Int64}}(undef, len)
-    j = 1
-    for i in 1:n # not including periodic orbit n+1 because it may be incomplete
-        for pp in fps[i]
-            po[j] = PeriodicOrbit([pp], i)
-            j += 1
+function storage(type, n)
+    vectype = Vector{type}
+    storage = Vector{vectype}(undef, n+1)
+    for i in 1:n+1
+        storage[i] = vectype[]
+    end
+    return storage
+end
+
+function iscontained(x, arr, thresh)
+    for y in arr
+        if norm(x - y) < thresh
+            return true
+        end
+    end
+    return false
+end
+
+function output(ds, fps, type, T)
+    len = sum(length.(fps))
+    po = Vector{PeriodicOrbit}(undef, len)
+    count = 1
+    for t in 1:T+1
+        for pp in fps[t]
+            po[count] = PeriodicOrbit(ds, pp, t, nothing)
+            count += 1
         end
     end
     return po
-end
-
-function storage(type, n)
-    storage = Vector{Set{type}}(undef, n+1)
-    for i in 1:n+1
-        storage[i] = Set{type}()
-    end
-    return storage
 end
