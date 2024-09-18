@@ -5,7 +5,7 @@
 OptimizedShooting
 ```
 
-## Example
+### Optimized Shooting Example
 ```@example MAIN
 using PeriodicOrbits
 using CairoMakie
@@ -146,7 +146,7 @@ The idea of periodic orbits can be illustrated easily on 1D maps. Finding all pe
 $n$ is equivalent to finding all points $x$ such that $f^{n}(x)=x$, where $f^{n}$ is $n$-th composition of $f$. Hence, solving $f^{n}(x)-x=0$ yields such points. However, this is often impossible analytically. 
 Let's see how [`DavidchackLai`](@ref) deals with it:
 
-First let's start with finding periodic orbits with period $1$ to $6$ for the logistic map with parameter $3.72$.
+First let's start with finding periodic orbits with period $1$ to $9$ for the logistic map with parameter $3.72$.
 
 ```@example MAIN
 using PeriodicOrbits
@@ -157,7 +157,6 @@ ds = DeterministicIteratedMap(logistic_rule, SVector(0.4), [3.72])
 seeds = InitialGuess[InitialGuess(SVector(i), nothing) for i in LinRange(0.0, 1.0, 10)]
 alg = DavidchackLai(n=9, m=6, abstol=1e-6, disttol=1e-12)
 output = periodic_orbits(ds, alg, seeds)
-output = uniquepos(output)
 ```
 
 Let's plot the periodic orbits of period $6$. 
@@ -187,7 +186,10 @@ lines!(axis, x, y, color = :blue, linewidth=1.7)
 scatter!(axis, [i[1] for i in fpsx], fpsy, color = :red, markersize=15)
 fig
 ```
-Points $x$ which fulfill $f^{n}(x)=x$ can be interpreted as an intersection of the function $f^{n}(x)$ and the identity $x$. Our result is correct because all the points of the intersection between the identity and the logistic map were found.
+Points $x$ which fulfill $f^{n}(x)=x$ can be interpreted as an intersection of the function 
+$f^{n}(x)$ and the identity function $y=x$. Our result is correct because all the points of 
+the intersection between the identity function and the sixth iterate of the logistic map 
+were found.
 
 #### Henon Map example
 
@@ -211,7 +213,6 @@ n = 12
 m = 6
 alg = DavidchackLai(n=n, m=m, abstol=1e-7, disttol=1e-10)
 output = periodic_orbits(ds, alg, seeds)
-output = uniquepos(output)
 
 fig = Figure()
 ax = Axis(fig[1,1])

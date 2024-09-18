@@ -10,7 +10,6 @@ using Test
     m = 6
     alg = DavidchackLai(n=o, m=m, disttol=1e-12, abstol=1e-8)
     pos = periodic_orbits(ds, alg, ics)
-    pos = uniquepos(pos)
     tol = 1e-12
     for po in pos
         x0 = po.points[1]
