@@ -96,7 +96,7 @@ function periodic_orbits(ds::DeterministicIteratedMap, alg::DavidchackLai, igs::
     end
 
     type = typeof(current_state(ds))
-    fps = storage(type, alg.n)
+    fps = [type[] for _ in 1:alg.n+1]
     igs = [ig.u0 for ig in igs]
 
     isnothing(alg.β) ? β = n-> 10*1.2^(n) : β = alg.β
@@ -167,15 +167,6 @@ function g(ds, state, n)
         newst = ds.f(newst, p, 1.0)
     end
     return newst - state
-end
-
-function storage(type, n)
-    vectype = Vector{type}
-    storage = Vector{vectype}(undef, n+1)
-    for i in 1:n+1
-        storage[i] = vectype[]
-    end
-    return storage
 end
 
 function iscontained(x, arr, thresh)
