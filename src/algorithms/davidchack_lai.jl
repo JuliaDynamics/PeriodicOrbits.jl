@@ -106,7 +106,7 @@ function periodic_orbits(ds::DeterministicIteratedMap, alg::DavidchackLai, igs::
     initial_detection!(fps, ds, alg, igs, β, C_matrices)
     main_detection!(fps, ds, alg, β, C_matrices)
 
-    return uniquepos(output(ds, fps, type, alg.n); atol=alg.abstol)
+    return uniquepos(convert_to_pos(ds, fps, alg.n); atol=alg.abstol)
 end
 
 function initial_detection!(fps, ds, alg, igs, β, C_matrices)
@@ -178,7 +178,7 @@ function iscontained(x, arr, thresh)
     return false
 end
 
-function output(ds, fps, type, T)
+function convert_to_pos(ds, fps, T)
     len = sum(length.(fps))
     po = Vector{PeriodicOrbit}(undef, len)
     count = 1
