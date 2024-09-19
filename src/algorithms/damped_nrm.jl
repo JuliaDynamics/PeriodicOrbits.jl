@@ -61,11 +61,6 @@ function next_step(prev_step, tands, alg, dim)
     T = prev_step[end]
     reinit!(tands, X)
 
-    # TODO:
-    # SPLIT the evolution over time T into small chunks Δt,
-    # and in between each chuck renomalize the deviation vectors
-    # while keeping track of overall accumulation
-    
     accum_norms = ones(size(current_deviations(tands)))
     Δt = 0.3
     for _ in 0:Δt:T
@@ -79,8 +74,6 @@ function next_step(prev_step, tands, alg, dim)
         set_deviations!(tands, cdevs)
     end
 
-    # Now to obtain the full Phi, we have to simply multiply
-    # the current deviations with their accumulated norms
     Phi = current_deviations(tands) .* accum_norms
     phi = current_state(tands)
 
