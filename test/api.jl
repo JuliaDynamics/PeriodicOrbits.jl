@@ -18,7 +18,7 @@ end
 
 const logistic_ = logistic()
 const lorenz_ = lorenz()
-const period3window = Dataset([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
+const period3window = StateSpaceSet([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
 
 @testset "constructors of InitialGuess" begin
     # TODO
