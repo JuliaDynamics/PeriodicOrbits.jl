@@ -7,8 +7,10 @@
 [![codecov](https://codecov.io/gh/JuliaDynamics/PeriodicOrbits.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaDynamics/PeriodicOrbits.jl)
 [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/PeriodicOrbits)](https://pkgs.genieframework.com?packages=PeriodicOrbits)
 
-Interface and algorithms for finding periodic orbits (stable or unstable) in dynamical systems based on the DynamicalSystems.jl ecosystem.
+Interface and algorithms for finding both stable and unstable periodic orbits of dynamical systems based on the DynamicalSystems.jl ecosystem.
 
 To install it, run `import Pkg; Pkg.add("PeriodicOrbits")`.
 
 All further information is provided in the documentation, which you can either find online or build locally by running the `docs/make.jl` file.
+
+**Note**: Throughout the documentation, "Periodic Orbit" is often abbreviated as "PO" for brevity.
