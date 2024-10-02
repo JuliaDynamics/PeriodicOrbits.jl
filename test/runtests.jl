@@ -8,7 +8,7 @@ testfile(file, testname=defaultname(file)) = @testset "$testname" begin; include
     testfile("api.jl")
     testfile("stability.jl")
     testfile("minimal_period.jl")
-    testfile("algorithms/optimized_shooting.jl")
-    testfile("algorithms/schmelcher_diakonos.jl")
-    testfile("algorithms/davidchack_lai.jl")
+    testfile("algorithms/continuous_time/optimized_shooting.jl")
+    testfile("algorithms/discrete_time/schmelcher_diakonos.jl")
+    testfile("algorithms/discrete_time/davidchack_lai.jl")
 end
