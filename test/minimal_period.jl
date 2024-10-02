@@ -32,7 +32,7 @@ end
     po = PeriodicOrbit(ds, u0, n*T, 0.01)
     minT_po = minimal_period(ds, po)
     @test length(minT_po.points) == PeriodicOrbits.default_Δt_partition
-    @test po.stable == minT_po.stable
+    @test (ismissing(po.stable) && ismissing(minT_po.stable)) || (po.stable == minT_po.stable) 
     @test isapprox(T, minT_po.T; atol=1e-4)
 
     Dt = 0.01

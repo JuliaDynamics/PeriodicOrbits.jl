@@ -32,19 +32,19 @@ A structure that contains information about a periodic orbit.
 * `points::StateSpaceSet` - points of the periodic orbit. This container 
   always holds the complete orbit.
 * `T::Real` - the period of the orbit
-* `stable::Union{Bool, Nothing}` - local stability of the periodic orbit. Unknown stability 
-  is set to `nothing`.
+* `stable::Union{Bool, Missing}` - local stability of the periodic orbit. Unknown stability 
+  is set to `missing`.
 
 """
 struct PeriodicOrbit{D, B, R<:Real}
     points::StateSpaceSet{D, B}
     T::R
-    stable::Union{Bool, Nothing}
+    stable::Union{Bool, Missing}
 end
 
 """
     PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
-        T::AbstractFloat, Δt=T/$(default_Δt_partition), stable=nothing) → po
+        T::AbstractFloat, Δt=T/$(default_Δt_partition), stable=missing) → po
 
 Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
 of the orbit, the remaining points of the orbit are computed and stored in the `points` 
@@ -53,20 +53,20 @@ field of the returned `po::PeriodicOrbit`. The orbit which contains infinitely m
  `po.points`. 
 """
 function PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
-    T::AbstractFloat, Δt=T/default_Δt_partition, stable::Union{Bool, Nothing}=nothing)
+    T::AbstractFloat, Δt=T/default_Δt_partition, stable::Union{Bool, Missing}=missing)
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, stable)
 end
 
 """
     PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
-        T::Integer, stable=nothing) → po
+        T::Integer, stable=missing) → po
 
 Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
 of the orbit, the remaining points of the orbit are computed and stored in the `points` 
 field of the returned `po::PeriodicOrbit`. The orbit is obtained by iterating the periodic 
 point `T-1` times and the points are stored in `po.points`.
 """
-function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, stable::Union{Bool, Nothing}=nothing)
+function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, stable::Union{Bool, Missing}=missing)
     discrete_timestep = 1
     return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=discrete_timestep), T, stable)
 end

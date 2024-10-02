@@ -184,7 +184,7 @@ function convert_to_pos(ds, fps, T)
     count = 1
     for t in 1:T+1
         for pp in fps[t]
-            po[count] = PeriodicOrbit(ds, pp, t, nothing)
+            po[count] = PeriodicOrbit(ds, pp, t, missing)
             count += 1
         end
     end
