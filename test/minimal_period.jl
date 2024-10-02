@@ -31,9 +31,13 @@ end
     n = 10
     po = PeriodicOrbit(ds, u0, n*T, 0.01)
     minT_po = minimal_period(ds, po)
-    @test length(minT_po.points) == minT_po.T / (minT_po.T / PeriodicOrbits.default_Δt_partition)
+    @test length(minT_po.points) == PeriodicOrbits.default_Δt_partition
     @test po.stable == minT_po.stable
     @test isapprox(T, minT_po.T; atol=1e-4)
+
+    Dt = 0.01
+    minT_po = minimal_period(ds, po; Δt=Dt)
+    @test length(minT_po.points) == floor(minT_po.T / Dt)
 end
 
 function normalhopf(u, p, t)

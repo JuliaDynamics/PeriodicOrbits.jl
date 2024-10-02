@@ -15,6 +15,9 @@ period is also called prime, principal or fundamental period.
 * `maxiter = 40` : Maximum number of Poincare map iterations. Continuous-time systems only. 
   If the number of Poincare map iterations exceeds `maxiter`, but the point `u0` has not 
   returned to `atol` neighborhood of itself, the original period `po.T` is returned.
+* `Δt = missing` : The time step between points in the trajectory `minT_po.points`. If `Δt` 
+  is `missing`, then `Δt=minT_po.T/$(default_Δt_partition)` is used. Continuous-time 
+  systems only. 
 
 ## Description
 
@@ -31,25 +34,35 @@ this hyperplane. Using the Poincare map, the hyperplane crossings are checked. T
 first crossing that is within `atol` distance of the initial point `u0` is the minimal 
 period. At most `maxiter` crossings are checked.
 """
-function minimal_period(ds::DynamicalSystem, po::PeriodicOrbit; kwargs...)
+function minimal_period(
+        ds::DynamicalSystem, 
+        po::PeriodicOrbit; 
+        Δt=missing, 
+        kwargs...
+    )
     type1 = isdiscretetime(ds)
     type2 = isdiscretetime(po)
     if type1 == type2
         newT = _minimal_period(ds, po.points[1], po.T; kwargs...)
-        return _set_period(ds, po, newT)
+        return _set_period(ds, po, newT, Δt)
     else
         throw(ArgumentError("Both the periodic orbit and the dynamical system have to be either discrete or continuous."))
     end
 end
 
-function _set_period(ds::DynamicalSystem, po, newT)
-    if newT == po.T
-        return po
-    else
-        # ensure that continuous po has the same amount of points
-        isdiscretetime(ds) ? Δt = 1 : Δt = newT/default_Δt_partition
-        return PeriodicOrbit(complete_orbit(ds, po.points[1], newT; Δt=Δt), newT, po.stable)
+function _set_period(ds::DynamicalSystem, po, newT, Δt)
+    newT == po.T && return po
+
+    Dt = 1
+    if !isdiscretetime(ds)
+        if ismissing(Δt)
+            # ensure that continuous po has the same amount of points
+            Dt = newT/default_Δt_partition
+        else
+            Dt = Δt
+        end
     end
+    return PeriodicOrbit(complete_orbit(ds, po.points[1], newT; Δt=Dt), newT, po.stable)
 end
 
 function _minimal_period(ds::DiscreteTimeDynamicalSystem, u0, T; atol=1e-4)
