@@ -20,3 +20,28 @@ function Base.show(io::IO, ::MIME"text/plain", po::PeriodicOrbit)
         println(io, rpad(" $(desc): ", padlen), val)
     end
 end
+
+function Base.summary(ig::InitialGuess)
+    digits = 5
+    u0 = round.(ig.u0, digits=digits)
+    T = isnothing(ig.T) ? "nothing" : round(ig.T, digits=ig_round_digits)
+    return "$(typeof(ig))($(u0), $(T))"
+end
+
+function Base.show(io::IO, ig::InitialGuess)
+    print(io, summary(ig))
+end
+
+function Base.show(io::IO, ::MIME"text/plain", ig::InitialGuess)
+    digits = 5
+    descriptors = [
+        "u0" => round.(ig.u0, digits=digits),
+        "T" => isnothing(ig.T) ? "nothing" : round(ig.T, digits=digits)
+    ]
+    padlen = maximum(length(d[1]) for d in descriptors) + 3
+
+    println(io, typeof(ig))
+    for (desc, val) in descriptors
+        println(io, rpad(" $(desc): ", padlen), val)
+    end
+end
