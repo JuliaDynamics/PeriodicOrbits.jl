@@ -63,10 +63,9 @@ end
 
 
 function _periodic_orbits!(POs, ds, alg, igs, Λ)
-    igs = [ig.u0 for ig in igs]
     for ig in igs
-        reinit!(ds, ig)
-        previg = ig
+        reinit!(ds, ig.u0)
+        previg = ig.u0
         for _ in 1:alg.maxiters
             previg, ig = Sk(ds, previg, alg.o, Λ)
             norm(ig) > alg.inftol && break
