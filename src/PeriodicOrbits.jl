@@ -17,9 +17,9 @@ include("api.jl")
 include("stability.jl")
 include("minimal_period.jl")
 include("pretty_printing.jl")
-include("lambdamatrix.jl")
-include("algorithms/schmelcher_diakonos.jl")
-include("algorithms/optimized_shooting.jl")
-include("algorithms/davidchack_lai.jl")
+include("algorithms/discrete_time/lambdamatrix.jl")
+include("algorithms/discrete_time/schmelcher_diakonos.jl")
+include("algorithms/continuous_time/optimized_shooting.jl")
+include("algorithms/discrete_time/davidchack_lai.jl")
 
 end
