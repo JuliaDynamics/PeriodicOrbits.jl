@@ -55,14 +55,14 @@ function periodic_orbits(ds::DiscreteTimeDynamicalSystem, alg::SchmelcherDiakono
     POs = type[]
     for λ in alg.λs, inds in alg.indss, sings in alg.signss
         Λ = lambdamatrix(λ, inds, sings)
-        _periodic_orbits!(POs, ds, alg, igs, Λ)
+        _periodic_orbits_sd!(POs, ds, alg, igs, Λ)
     end
     po = PeriodicOrbit[PeriodicOrbit(ds, fp, alg.o) for fp in POs]
     return po
 end
 
 
-function _periodic_orbits!(POs, ds, alg, igs, Λ)
+function _periodic_orbits_sd!(POs, ds, alg, igs, Λ)
     for ig in igs
         reinit!(ds, ig.u0)
         previg = ig.u0
