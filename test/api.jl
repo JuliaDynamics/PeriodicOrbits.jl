@@ -44,7 +44,7 @@ end
     po3 = PeriodicOrbit(logistic_, SVector{1}([(r-1)/r]), 1)
 
     # use Set to neglect order
-    uniquepo = Set(uniquepos(PeriodicOrbit[po1, po2, po3], atol=1e-4))
+    uniquepo = Set(uniquepos([po1, po2, po3]; atol=1e-4))
     reference = Set([po1, po3])
     @test uniquepo == reference
 end

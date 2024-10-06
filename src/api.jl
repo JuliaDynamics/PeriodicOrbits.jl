@@ -199,7 +199,7 @@ end
 
 
 """
-    uniquepos(pos::Vector{PeriodicOrbit}; atol=1e-6) → Vector{PeriodicOrbit}
+    uniquepos(pos::Vector{<:PeriodicOrbit}; atol=1e-6) → Vector{PeriodicOrbit}
 
 Return a vector of unique periodic orbits from the vector `pos` of periodic orbits.
 By unique we mean that the distance between any two periodic orbits in the vector is 
@@ -210,7 +210,7 @@ greater than `atol`. To see details about the distance function, see [`podistanc
 * `atol` : minimal distance between two periodic orbits for them to be considered unique.
 
 """
-function uniquepos(pos::Vector{PeriodicOrbit}; atol::Real=1e-6)
+function uniquepos(pos::Vector{<:PeriodicOrbit}; atol::Real=1e-6)
     length(pos) == 0 && return pos
     unique_pos = typeof(pos[end])[]
     pos = copy(pos)
