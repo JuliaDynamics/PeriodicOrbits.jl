@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Algorithms · PeriodicOrbits.jl</title><meta name="title" content="Algorithms · PeriodicOrbits.jl"/><meta property="og:title" content="Algorithms · PeriodicOrbits.jl"/><meta property="twitter:title" content="Algorithms · PeriodicOrbits.jl"/><meta name="description" content="Documentation for PeriodicOrbits.jl."/><meta property="og:description" content="Documentation for PeriodicOrbits.jl."/><meta property="twitter:description" content="Documentation for PeriodicOrbits.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">PeriodicOrbits.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">PeriodicOrbits.jl</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li><a class="tocitem" href="../api/">The Public API</a></li><li class="is-active"><a class="tocitem" href>Algorithms</a><ul class="internal"><li><a class="tocitem" href="#Optimized-Shooting-Method"><span>Optimized Shooting Method</span></a></li><li><a class="tocitem" href="#Schmelcher-and-Diakonos"><span>Schmelcher &amp; Diakonos</span></a></li><li><a class="tocitem" href="#Davidchack-and-Lai"><span>Davidchack &amp; Lai</span></a></li></ul></li><li><a class="tocitem" href="../developer/">Developer&#39;s Docs</a></li><li><a class="tocitem" href="../references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Algorithms</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Algorithms</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/main/docs/src/algorithms.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Algorithms"><a class="docs-heading-anchor" href="#Algorithms">Algorithms</a><a id="Algorithms-1"></a><a class="docs-heading-anchor-permalink" href="#Algorithms" title="Permalink"></a></h1><h2 id="Optimized-Shooting-Method"><a class="docs-heading-anchor" href="#Optimized-Shooting-Method">Optimized Shooting Method</a><a id="Optimized-Shooting-Method-1"></a><a class="docs-heading-anchor-permalink" href="#Optimized-Shooting-Method" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PeriodicOrbits.OptimizedShooting" href="#PeriodicOrbits.OptimizedShooting"><code>PeriodicOrbits.OptimizedShooting</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">OptimizedShooting(; kwargs...)</code></pre><p>A shooting method (<a href="../references/#Dednam2014">Dednam and Botha, 2014</a>) that uses Levenberg-Marquardt optimization  to find periodic orbits of continuous-time dynamical systems.</p><p><strong>Keyword arguments</strong></p><ul><li><code>Δt::Float64 = 1e-6</code>: step between the points in the residual <code>R</code>. See below for details.</li><li><code>n::Int64 = 2</code>: <code>n*dimension(ds)</code> is the number of points in the residual <code>R</code>. See below  for details.</li><li><code>nonlinear_solve_kwargs = (reltol=1e-6, abstol=1e-6, maxiters=1000)</code>: keyword arguments  to pass to the <code>solve</code> function from  <a href="https://github.com/SciML/NonlinearSolve.jl"><code>NonlinearSolve.jl</code></a>. For details on the  keywords see the respective package documentation.</li></ul><p><strong>Description</strong></p><p>Let us consider the following continuous-time dynamical system</p><p class="math-container">\[\frac{dx}{dt} = f(x, p, t)\]</p><p>Dednam and Botha (<a href="../references/#Dednam2014">Dednam and Botha, 2014</a>) suggest to minimize the residual <span>$R$</span> defined as</p><p class="math-container">\[R = (x(T)-x(0), x(T+\Delta t)-x(\Delta t), \dots, 
+x(T+(n-1)\Delta t)-x((n-1)\Delta t))\]</p><p>where <span>$T$</span> is unknown period of a periodic orbit and <span>$x(t)$</span> is a solution at time <span>$t$</span>  given some unknown initial point. Initial guess of the period <span>$T$</span> and the initial point  is optimized by the Levenberg-Marquardt algorithm.</p><p>In our implementation, the keyword argument <code>n</code> corresponds to <span>$n$</span> in the residual <span>$R$</span>.  The keyword argument <code>Δt</code> corresponds to <span>$\Delta t$</span> in the residual <span>$R$</span>.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/eb5c9cff6587aadbf4388d45000f59feca09b76a/src/algorithms/optimized_shooting.jl#L6-L41">source</a></section></article><h3 id="Optimized-Shooting-Example"><a class="docs-heading-anchor" href="#Optimized-Shooting-Example">Optimized Shooting Example</a><a id="Optimized-Shooting-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Optimized-Shooting-Example" title="Permalink"></a></h3><pre><code class="language-julia hljs">using PeriodicOrbits
+using CairoMakie
+using OrdinaryDiffEq
+
+@inbounds function roessler_rule(u, p, t)
+    du1 = -u[2]-u[3]
+    du2 = u[1] + p[1]*u[2]
+    du3 = p[2] + u[3]*(u[1] - p[3])
+    return SVector{3}(du1, du2, du3)
+end
+
+function plot_result(res, ds; azimuth = 1.3 * pi, elevation = 0.3 * pi)
+    traj, t = trajectory(ds, res.T, res.points[1]; Dt = 0.01)
+    fig = Figure()
+    ax = Axis3(fig[1,1], azimuth = azimuth, elevation=elevation)
+    lines!(ax, traj[:, 1], traj[:, 2], traj[:, 3], color = :blue, linewidth=1.7)
+    scatter!(ax, res.points[1])
+    return fig
+end
+
+ig = InitialGuess(SVector(2.0, 5.0, 10.0), 10.2)
+OSalg = OptimizedShooting(Δt=0.01, n=3)
+ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [0.15, 0.2, 3.5])
+res = periodic_orbit(ds, OSalg, ig)
+plot_result(res, ds; azimuth = 1.3pi, elevation=0.1pi)</code></pre><img src="6128728e.png" alt="Example block output"/><h2 id="Schmelcher-and-Diakonos"><a class="docs-heading-anchor" href="#Schmelcher-and-Diakonos">Schmelcher &amp; Diakonos</a><a id="Schmelcher-and-Diakonos-1"></a><a class="docs-heading-anchor-permalink" href="#Schmelcher-and-Diakonos" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PeriodicOrbits.SchmelcherDiakonos" href="#PeriodicOrbits.SchmelcherDiakonos"><code>PeriodicOrbits.SchmelcherDiakonos</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">SchmelcherDiakonos(; kwargs...)</code></pre><p>Detect periodic orbits of <code>ds &lt;: DiscreteTimeDynamicalSystem</code> using algorithm proposed by Schmelcher &amp; Diakonos (<a href="../references/#Schmelcher1997">Schmelcher and Diakonos, 1997</a>).</p><p><strong>Keyword arguments</strong></p><ul><li><code>o</code> : period of the periodic orbit</li><li><code>λs</code> : vector of λ parameters, see (<a href="../references/#Schmelcher1997">Schmelcher and Diakonos, 1997</a>) for details</li><li><code>indss</code> : vector of vectors of indices for the permutation matrix</li><li><code>signss</code> : vector of vectors of signs for the permutation matrix</li><li><code>maxiters=10000</code> : maximum amount of iterations an initial guess will be iterated before  claiming it has not converged</li><li><code>inftol=10.0</code> : if a state reaches <code>norm(state) ≥ inftol</code> it is assumed that it has  escaped to infinity (and is thus abandoned)</li><li><code>disttol=1e-10</code> : distance tolerance. If the 2-norm of a previous state with the next one  is <code>≤ disttol</code> then it has converged to a fixed point</li></ul><p><strong>Description</strong></p><p>The algorithm used can detect periodic orbits by turning fixed points of the original map <code>ds</code> to stable ones, through the transformation</p><p class="math-container">\[\mathbf{x}_{n+1} = \mathbf{x}_n +
+\mathbf{\Lambda}_k\left(f^{(o)}(\mathbf{x}_n) - \mathbf{x}_n\right)\]</p><p>The index <span>$k$</span> counts the various possible <span>$\mathbf{\Lambda}_k$</span>.</p><p><strong>Performance notes</strong></p><p><em>All</em> initial guesses are evolved for <em>all</em> <span>$\mathbf{\Lambda}_k$</span> which can very quickly lead to long computation times.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/eb5c9cff6587aadbf4388d45000f59feca09b76a/src/algorithms/schmelcher_diakonos.jl#L6-L42">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PeriodicOrbits.lambdamatrix" href="#PeriodicOrbits.lambdamatrix"><code>PeriodicOrbits.lambdamatrix</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">lambdamatrix(λ, inds::Vector{Int}, sings) -&gt; Λk</code></pre><p>Return the matrix <span>$\mathbf{\Lambda}_k$</span> used to create a new dynamical system with some unstable fixed points turned to stable in the algorithm <a href="#PeriodicOrbits.SchmelcherDiakonos"><code>SchmelcherDiakonos</code></a>.</p><p><strong>Arguments</strong></p><ol><li><code>λ&lt;:Real</code> : the multiplier of the <span>$C_k$</span> matrix, with <code>0 &lt; λ &lt; 1</code>.</li><li><code>inds::Vector{Int}</code> : The <code>i</code>-th entry of this vector gives the <em>row</em> of the nonzero element of the <code>i</code>th column of <span>$C_k$</span>.</li><li><code>sings::Vector{&lt;:Real}</code> : The element of the <code>i</code>-th column of <span>$C_k$</span> is +1 if <code>signs[i] &gt; 0</code> and -1 otherwise (<code>sings</code> can also be <code>Bool</code> vector).</li></ol><p>Calling <code>lambdamatrix(λ, D::Int)</code> creates a random <span>$\mathbf{\Lambda}_k$</span> by randomly generating an <code>inds</code> and a <code>signs</code> from all possible combinations. The <em>collections</em> of all these combinations can be obtained from the function <a href="#PeriodicOrbits.lambdaperms"><code>lambdaperms</code></a>.</p><p><strong>Description</strong></p><p>Each element of <code>inds</code> <em>must be unique</em> such that the resulting matrix is orthogonal and represents the group of special reflections and permutations.</p><p>Deciding the appropriate values for <code>λ, inds, sings</code> is not trivial. However, in ref.(<a href="../references/#Pingel2000">Pingel <em>et al.</em>, 2000</a>) there is a lot of information that can help with that decision. Also, by appropriately choosing various values for <code>λ</code>, one can sort periodic orbits from e.g. least unstable to most unstable, see (<a href="../references/#Diakonos1998">Diakonos <em>et al.</em>, 1998</a>) for details.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/eb5c9cff6587aadbf4388d45000f59feca09b76a/src/lambdamatrix.jl#L9-L40">source</a></section></article><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PeriodicOrbits.lambdaperms" href="#PeriodicOrbits.lambdaperms"><code>PeriodicOrbits.lambdaperms</code></a> — <span class="docstring-category">Function</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">lambdaperms(D) -&gt; indperms, singperms</code></pre><p>Return two collections that each contain all possible combinations of indices (total of <span>$D!$</span>) and signs (total of <span>$2^D$</span>) for dimension <code>D</code> (see <a href="#PeriodicOrbits.lambdamatrix"><code>lambdamatrix</code></a>).</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/eb5c9cff6587aadbf4388d45000f59feca09b76a/src/lambdamatrix.jl#L53-L58">source</a></section></article><h3 id="Standard-Map-example"><a class="docs-heading-anchor" href="#Standard-Map-example">Standard Map example</a><a id="Standard-Map-example-1"></a><a class="docs-heading-anchor-permalink" href="#Standard-Map-example" title="Permalink"></a></h3><p>For example, let&#39;s find the fixed points of the Standard map of period 2, 3, 4, 5, 6 and 8. We will use all permutations for the <code>signs</code> but only one for the <code>inds</code>. We will also only use one <code>λ</code> value, and a 11×11 density of initial conditions.</p><p>First, initialize everything</p><pre><code class="language-julia hljs">using PeriodicOrbits
+
+function standardmap_rule(x, k, n)
+    theta = x[1]; p = x[2]
+    p += k[1]*sin(theta)
+    theta += p
+    return SVector(mod2pi(theta), mod2pi(p))
+end
+
+standardmap = DeterministicIteratedMap(standardmap_rule, rand(2), [1.0])
+xs = range(0, stop = 2π, length = 11); ys = copy(xs)
+ics = InitialGuess[InitialGuess(SVector{2}(x,y), nothing) for x in xs for y in ys]
+
+# All permutations of [±1, ±1]:
+signss = lambdaperms(2)[2] # second entry are the signs
+
+# I know from personal research I only need this `inds`:
+indss = [[1,2]] # &lt;- must be container of vectors!
+
+λs = [0.005] # &lt;- vector of numbers
+
+periods = [2, 3, 4, 5, 6, 8]
+ALLFP = Vector{PeriodicOrbit}[]
+
+standardmap</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-dimensional DeterministicIteratedMap
+ deterministic: true
+ discrete time: true
+ in-place:      false
+ dynamic rule:  standardmap_rule
+ parameters:    [1.0]
+ time:          0
+ state:         [0.5312619875167677, 0.841133076685686]
+</code></pre><p>Then, do the necessary computations for all periods</p><pre><code class="language-julia hljs">for o in periods
+    SDalg = SchmelcherDiakonos(o=o, λs=λs, indss=indss, signss=signss, maxiters=30000)
+    FP = periodic_orbits(standardmap, SDalg, ics)
+    FP = uniquepos(FP; atol=1e-5)
+    push!(ALLFP, FP)
+end</code></pre><p>Plot the phase space of the standard map</p><pre><code class="language-julia hljs">using CairoMakie
+iters = 1000
+dataset = trajectory(standardmap, iters)[1]
+for x in xs
+    for y in ys
+        append!(dataset, trajectory(standardmap, iters, [x, y])[1])
+    end
+end
+
+fig = Figure()
+ax = Axis(fig[1,1]; xlabel = L&quot;\theta&quot;, ylabel = L&quot;p&quot;,
+    limits = ((xs[1],xs[end]), (xs[1],xs[end]))
+)
+scatter!(ax, dataset[:, 1], dataset[:, 2]; markersize = 1, color = &quot;black&quot;)
+fig</code></pre><img src="b22548f2.png" alt="Example block output"/><p>and finally, plot the fixed points</p><pre><code class="language-julia hljs">markers = [:diamond, :utriangle, :rect, :pentagon, :hexagon, :circle]
+
+for i in eachindex(ALLFP)
+    FP = ALLFP[i]
+    o = periods[i]
+    points = Tuple{Float64, Float64}[]
+    for po in FP
+        append!(points, [Tuple(x) for x in po.points])
+    end
+    println(points)
+    scatter!(ax, points; marker=markers[i], color = Cycled(i),
+        markersize = 30 - 2i, strokecolor = &quot;grey&quot;, strokewidth = 1, label = &quot;period $o&quot;
+    )
+end
+axislegend(ax)
+fig</code></pre><img src="02c1c265.png" alt="Example block output"/><p>Okay, this output is great, and we can tell that it is correct because:</p><ol><li>Fixed points of period <span>$n$</span> are also fixed points of period <span>$2n, 3n, 4n, ...$</span></li><li>Besides fixed points of previous periods, <em>original</em> fixed points of period <span>$n$</span> come in (possible multiples of) <span>$2n$</span>-sized pairs (see e.g. period 5). This is a direct consequence of the Poincaré–Birkhoff theorem.</li></ol><h2 id="Davidchack-and-Lai"><a class="docs-heading-anchor" href="#Davidchack-and-Lai">Davidchack &amp; Lai</a><a id="Davidchack-and-Lai-1"></a><a class="docs-heading-anchor-permalink" href="#Davidchack-and-Lai" title="Permalink"></a></h2><p>An extension of the <a href="#PeriodicOrbits.SchmelcherDiakonos"><code>SchmelcherDiakonos</code></a> algorithm was proposed by Davidchack &amp; Lai (<a href="../references/#Davidchack1999">Davidchack and Lai, 1999</a>). It works similarly, but it uses smarter seeding and an improved transformation rule.</p><article class="docstring"><header><a class="docstring-article-toggle-button fa-solid fa-chevron-down" href="javascript:;" title="Collapse docstring"></a><a class="docstring-binding" id="PeriodicOrbits.DavidchackLai" href="#PeriodicOrbits.DavidchackLai"><code>PeriodicOrbits.DavidchackLai</code></a> — <span class="docstring-category">Type</span><span class="is-flex-grow-1 docstring-article-toggle-button" title="Collapse docstring"></span></header><section><div><pre><code class="language-julia hljs">DavidchackLai(; kwargs...)</code></pre><p>Find periodic orbits <code>fps</code> of periods <code>1</code> to <code>n+1</code> for the dynamical system <code>ds</code> using the algorithm propesed by Davidchack &amp; Lai (<a href="../references/#Davidchack1999">Davidchack and Lai, 1999</a>).</p><p><strong>Keyword arguments</strong></p><ul><li><code>n::Int64</code> : Periodic orbits of period up to <code>n</code> will be detected. Some (but not all) POs   of period <code>n+1</code> will be detected. Keyword argument <code>n</code> must be a positive integer.</li><li><code>m::Int64</code> : Initial guesses will be used to find POs of period <code>1</code> to <code>m</code>. These   periodic orbits will then be used to detect periodic orbits of periods from <code>m+1</code> to   <code>n+1</code>. Keyword argument <code>m</code> must be a positive integer between <code>1</code> and <code>n</code>.</li><li><code>β = nothing</code>: If it is nothing, then <code>β(n) = 10*1.2^n</code>. Otherwise can be a   function that takes period <code>n</code> and return a number. It is a parameter mentioned  in the paper(<a href="../references/#Davidchack1999">Davidchack and Lai, 1999</a>).</li><li><code>maxiters = nothing</code>: If it is nothing, then initial condition will be iterated <code>max(100, 4*β(p))</code> times (where <code>p</code> is the period of the periodic orbit)  before claiming it has not converged. If it is an integer, then it is the maximum   amount of iterations an initial condition will be iterated before claiming   it has not converged.</li><li><code>disttol = 1e-10</code>: Distance tolerance. If <code>norm(f^{n}(x)-x) &lt; disttol</code>   where <code>f^{n}</code> is the <code>n</code>-th iterate of the dynamic rule <code>f</code>, then <code>x</code>   is an <code>n</code>-periodic point.</li><li><code>abstol = 1e-8</code>: A detected periodic point isn&#39;t stored if it is in <code>abstol</code>   neighborhood of some previously detected point. Distance is measured by   euclidian norm. If you are getting duplicate periodic points, increase this value.</li></ul><p><strong>Description</strong></p><p>The algorithm is an extension of Schmelcher &amp; Diakonos(<a href="../references/#Schmelcher1997">Schmelcher and Diakonos, 1997</a>) implemented as <a href="#PeriodicOrbits.SchmelcherDiakonos"><code>SchmelcherDiakonos</code></a>.</p><p>The algorithm can detect periodic orbits by turning fixed points of the original dynamical system <code>ds</code> to stable ones, through the  transformation</p><p class="math-container">\[\mathbf{x}_{n+1} = \mathbf{x}_{n} + 
+[\beta |g(\mathbf{x}_{n})| C^{T} - J(\mathbf{x}_{n})]^{-1} g(\mathbf{x}_{n})\]</p><p>where</p><p class="math-container">\[g(\mathbf{x}_{n}) = f^{n}(\mathbf{x}_{n}) - \mathbf{x}_{n}\]</p><p>and</p><p class="math-container">\[J(\mathbf{x}_{n}) = \frac{\partial g(\mathbf{x}_{n})}{\partial \mathbf{x}_{n}}\]</p><p>The main difference between <a href="#PeriodicOrbits.SchmelcherDiakonos"><code>SchmelcherDiakonos</code></a> and  <a href="#PeriodicOrbits.DavidchackLai"><code>DavidchackLai</code></a> is that the latter uses periodic points of previous period as seeds to detect periodic points of the next period. Additionally, <a href="#PeriodicOrbits.SchmelcherDiakonos"><code>SchmelcherDiakonos</code></a> only detects periodic points of a given period,  while <code>davidchacklai</code> detects periodic points of all periods up to <code>n</code>.</p><p><strong>Important note</strong></p><p>For low periods <code>n</code> circa less than 6, you should select <code>m = n</code> otherwise the algorithm  won&#39;t detect periodic orbits correctly. For higher periods, you can select <code>m</code> as 6.  We recommend experimenting with <code>m</code> as it may depend on the specific problem.  Increase <code>m</code> in case the orbits are not being detected correctly.</p><p>Initial guesses for this algorithm can be selected as a uniform grid of points in the state  space or subset of a chaotic trajectory.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/JuliaDynamics/PeriodicOrbits.jl/blob/eb5c9cff6587aadbf4388d45000f59feca09b76a/src/algorithms/davidchack_lai.jl#L5-L71">source</a></section></article><h4 id="Logistic-Map-example"><a class="docs-heading-anchor" href="#Logistic-Map-example">Logistic Map example</a><a id="Logistic-Map-example-1"></a><a class="docs-heading-anchor-permalink" href="#Logistic-Map-example" title="Permalink"></a></h4><p>The idea of periodic orbits can be illustrated easily on 1D maps. Finding all periodic orbits of period <span>$n$</span> is equivalent to finding all points <span>$x$</span> such that <span>$f^{n}(x)=x$</span>, where <span>$f^{n}$</span> is <span>$n$</span>-th composition of <span>$f$</span>. Hence, solving <span>$f^{n}(x)-x=0$</span> yields such points. However, this is often impossible analytically.  Let&#39;s see how <a href="#PeriodicOrbits.DavidchackLai"><code>DavidchackLai</code></a> deals with it:</p><p>First let&#39;s start with finding periodic orbits with period <span>$1$</span> to <span>$9$</span> for the logistic map with parameter <span>$3.72$</span>.</p><pre><code class="language-julia hljs">using PeriodicOrbits
+using CairoMakie
+
+logistic_rule(x, p, n) = @inbounds SVector(p[1]*x[1]*(1 - x[1]))
+ds = DeterministicIteratedMap(logistic_rule, SVector(0.4), [3.72])
+seeds = InitialGuess[InitialGuess(SVector(i), nothing) for i in LinRange(0.0, 1.0, 10)]
+alg = DavidchackLai(n=9, m=6, abstol=1e-6, disttol=1e-12)
+output = periodic_orbits(ds, alg, seeds)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">21-element Vector{PeriodicOrbit{1, Float64, Int64}}:
+ PeriodicOrbit{1, Float64, Int64}([0.6834664578174998], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.9204951873594017], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.9171895253304865], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.8876079095344168], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.8198226708978105], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.7859469404443792], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.7311827956989247], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.0], 10, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.9228234528852715], 9, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.7477917783947232], 9, missing)
+ ⋮
+ PeriodicOrbit{1, Float64, Int64}([0.9084942279404515], 8, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.5808155232915646], 8, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.8183371571046828], 8, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.6356815832652796], 8, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.8821874972430711], 8, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.9253694005081411], 7, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.926615939521572], 7, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.8672212001324514], 6, missing)
+ PeriodicOrbit{1, Float64, Int64}([0.9157520118590328], 6, missing)</code></pre><p>Let&#39;s plot the periodic orbits of period <span>$6$</span>. </p><pre><code class="language-julia hljs">function ydata(ds, period, xdata)
+    ydata = typeof(current_state(ds)[1])[]
+    for x in xdata
+        reinit!(ds, x)
+        step!(ds, period)
+        push!(ydata, current_state(ds)[1])
+    end
+    return ydata
+end
+
+fig = Figure()
+x = LinRange(0.0, 1.0, 1000)
+period = 6
+period6 = filter(po -&gt; po.T == period, output)
+fpsx = vcat([vec(po.points) for po in period6]...)
+y = ydata(ds, period, [SVector(x0) for x0 in x])
+fpsy = ydata(ds, period, fpsx)
+axis = Axis(fig[1, 1])
+axis.title = &quot;Period $period&quot;
+lines!(axis, x, x, color=:black, linewidth=0.8)
+lines!(axis, x, y, color = :blue, linewidth=1.7)
+scatter!(axis, [i[1] for i in fpsx], fpsy, color = :red, markersize=15)
+fig</code></pre><img src="2e6cbbeb.png" alt="Example block output"/><p>Points <span>$x$</span> which fulfill <span>$f^{n}(x)=x$</span> can be interpreted as an intersection of the function  <span>$f^{n}(x)$</span> and the identity function <span>$y=x$</span>. Our result is correct because all the points of  the intersection between the identity function and the sixth iterate of the logistic map  were found.</p><h4 id="Henon-Map-example"><a class="docs-heading-anchor" href="#Henon-Map-example">Henon Map example</a><a id="Henon-Map-example-1"></a><a class="docs-heading-anchor-permalink" href="#Henon-Map-example" title="Permalink"></a></h4><p>Let&#39;s try to use <a href="#PeriodicOrbits.DavidchackLai"><code>DavidchackLai</code></a> in higher dimension. We will try to detect  all periodic points of Henon map of period <code>1</code> to <code>12</code>.</p><pre><code class="language-julia hljs">using PeriodicOrbits, CairoMakie
+using LinearAlgebra: norm
+
+function henon(u0=zeros(2); a = 1.4, b = 0.3)
+    return DeterministicIteratedMap(henon_rule, u0, [a,b])
+end
+henon_rule(x, p, n) = SVector{2}(1.0 - p[1]*x[1]^2 + x[2], p[2]*x[1])
+
+ds = henon()
+xs = LinRange(-3.0, 3.0, 10)
+ys = LinRange(-10.0, 10.0, 10)
+seeds = InitialGuess[InitialGuess(SVector{2}(x,y), nothing) for x in xs for y in ys]
+n = 12
+m = 6
+alg = DavidchackLai(n=n, m=m, abstol=1e-7, disttol=1e-10)
+output = periodic_orbits(ds, alg, seeds)
+
+fig = Figure()
+ax = Axis(fig[1,1])
+result = vcat([vec(po.points) for po in output]...)
+scatter!(ax, [x[1] for x in result], [x[2] for x in result], markersize=8, color=:blue)
+fig</code></pre><img src="30d62223.png" alt="Example block output"/><p>The theory of periodic orbits states that UPOs form sort of a skeleton of the chaotic attractor. Our results supports this claim since it closely resembles the Henon attractor.</p><p>Note that in this case parameter <code>m</code> has to be set to at least <code>6</code>. Otherwise, the algorithm  fails to detect orbits of higher periods correctly.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../api/">« The Public API</a><a class="docs-footer-nextpage" href="../developer/">Developer&#39;s Docs »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Wednesday 2 October 2024 21:41">Wednesday 2 October 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
