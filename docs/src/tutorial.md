@@ -7,7 +7,7 @@ system itself.
 using PeriodicOrbits
 
 function lorenz(u0=[0.0, 10.0, 0.0]; σ = 10.0, ρ = 28.0, β = 8/3)
-    return CoupledODEs(lorenz_rule, u0, [σ, ρ, β])
+    return CoupledODEs(lorenz_rule, u0, [σ, ρ, β]; diffeq=(abstol=1e-10, reltol=1e-10))
 end
 @inbounds function lorenz_rule(u, p, t)
     du1 = p[1]*(u[2]-u[1])
@@ -22,8 +22,8 @@ ds = lorenz()
 Next, we give initial guess of the location of the periodic orbit and its period.
 
 ```@example MAIN
-u0_guess = SVector(3.5, 3.0, 0.0)
-T_guess = 5.2
+u0_guess = SVector(1.0, 2.0, 5.0)
+T_guess = 4.2
 ig = InitialGuess(u0_guess, T_guess) 
 ```
 Then we pick an appropriate algorithm that will detect the PO. In this case we can use 
