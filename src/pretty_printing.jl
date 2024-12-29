@@ -24,7 +24,7 @@ end
 function Base.summary(ig::InitialGuess)
     digits = 5
     u0 = round.(ig.u0, digits=digits)
-    T = isnothing(ig.T) ? "nothing" : round(ig.T, digits=ig_round_digits)
+    T = isnothing(ig.T) ? "nothing" : round(ig.T, digits=digits)
     return "$(typeof(ig))($(u0), $(T))"
 end
 
