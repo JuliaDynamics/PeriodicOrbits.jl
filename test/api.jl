@@ -16,9 +16,8 @@ end
     return SVector{3}(du1, du2, du3)
 end
 
-const logistic_ = logistic()
-const lorenz_ = lorenz()
-const period3window = StateSpaceSet([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
+logistic_ = logistic()
+period3window = StateSpaceSet([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
 
 @testset "constructors of InitialGuess" begin
     # TODO
@@ -66,6 +65,7 @@ end
     po = PeriodicOrbit(logistic_, SVector{1}([(r-1)/r]), 1)
     @test isdiscretetime(po) == true
 
+    lorenz_ = lorenz()
     po = PeriodicOrbit(lorenz_, current_state(lorenz_), 1.0)
     @test isdiscretetime(po) == false
 end
