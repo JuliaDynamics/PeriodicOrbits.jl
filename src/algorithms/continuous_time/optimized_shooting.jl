@@ -38,6 +38,9 @@ is optimized by the Levenberg-Marquardt algorithm.
 
 In our implementation, the keyword argument `n` corresponds to ``n`` in the residual ``R``. 
 The keyword argument `Δt` corresponds to ``\\Delta t`` in the residual ``R``.
+
+Note that for the algorithm to converge to a periodic orbit, the initial guess has to be 
+close to an existing periodic orbit.
 """
 @kwdef struct OptimizedShooting{T} <: PeriodicOrbitFinder
     Δt::Float64 = 1e-6

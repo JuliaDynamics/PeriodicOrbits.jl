@@ -12,8 +12,8 @@ function logistic(x0=0.4; r = 4.0)
 end
 logistic_rule(x, p, n) = @inbounds SVector(p[1]*x[1]*(1 - x[1]))
 
-const logistic_ = logistic()
-const period3window = StateSpaceSet([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
+logistic_ = logistic()
+period3window = StateSpaceSet([SVector{1}(x) for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]])
 
 @testset "minimal_period discrete" begin
     r = 1+sqrt(8)

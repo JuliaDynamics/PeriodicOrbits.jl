@@ -24,7 +24,7 @@ end
 
 ig = InitialGuess(SVector(2.0, 5.0, 10.0), 10.2)
 OSalg = OptimizedShooting(Δt=0.01, n=3)
-ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [0.15, 0.2, 3.5])
+ds = CoupledODEs(roessler_rule, [1.0, -2.0, 0.1], [0.15, 0.2, 3.5]; diffeq=(abstol=1e-10, reltol=1e-10))
 res = periodic_orbit(ds, OSalg, ig)
 plot_result(res, ds; azimuth = 1.3pi, elevation=0.1pi)
 ```
