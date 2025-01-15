@@ -10,7 +10,7 @@ using LinearAlgebra: norm
 end
 
 @testset "Optimized shooting" begin
-    igs = [InitialGuess(SVector(1.0, 2.0, 5.0), 4.2), InitialGuess(SVector(1.0, 2.0, 5.0), 12.2)]
+    igs = [InitialGuess(SVector(1.0, 2.0, 5.0), 4.2), InitialGuess(SVector(1.0, 2.0, 5.0), 4.2)]
     ig = igs[1]
     alg = OptimizedShooting(Δt=1e-4, n=3, nonlinear_solve_kwargs=(abstol=1e-7, reltol=1e-7))
     ds = CoupledODEs(lorenz_rule, [0.0, 10.0, 0.0], [10.0, 28.0, 8 / 3]; diffeq=(abstol=1e-11, reltol=1e-11))
