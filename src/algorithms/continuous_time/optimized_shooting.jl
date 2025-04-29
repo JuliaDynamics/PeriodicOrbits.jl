@@ -50,12 +50,28 @@ close to an existing periodic orbit.
 end
 
 function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
+    f = optimized_shooting_error_function(ds)
+    prob = NonlinearLeastSquaresProblem(
+        NonlinearFunction(f, resid_prototype = zeros(alg.n*dimension(ds))), [ig.u0..., ig.T]
+    )
+    sol = solve(prob, NonlinearSolve.LevenbergMarquardt(); alg.nonlinear_solve_kwargs...)
+    if sol.retcode == ReturnCode.Success
+        u0 = sol.u[1:end-1]
+        T = sol.u[end]
+        Δt = 0.1
+        return PeriodicOrbit(ds, u0, T, Δt)
+    else
+        return nothing
+    end
+end
+
+function optimized_shooting_error_function(ds)
     D = dimension(ds)
     f = (err, v, p) -> begin
         if isinplace(ds)
             u0 = @view v[1:D]
         else
-            u0 = SVector{D}(v[1:D])
+            u0 = SVector{D}(NTuple{D}(v))
         end
         T = v[end]
 
@@ -77,18 +93,5 @@ function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGues
             fill!(err, Inf)
         end
     end
-
-    prob = NonlinearLeastSquaresProblem(
-        NonlinearFunction(f, resid_prototype = zeros(alg.n*dimension(ds))), [ig.u0..., ig.T]
-    )
-
-    sol = solve(prob, NonlinearSolve.LevenbergMarquardt(); alg.nonlinear_solve_kwargs...)
-    if sol.retcode == ReturnCode.Success
-        u0 = sol.u[1:end-1]
-        T = sol.u[end]
-        Δt = 0.1
-        return PeriodicOrbit(ds, u0, T, Δt)
-    else
-        return nothing
-    end
+    return f
 end
