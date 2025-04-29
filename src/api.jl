@@ -54,10 +54,11 @@ end
 
 Construct a complete [`PeriodicOrbit`](@ref) with period `T` for `ds` by starting from `u0`.
 
-For continuous time systems, the PO normally contains infinitely many points,
-but it is approximated by calculating
+For continuous time systems, the PO formally contains infinitely many points,
+but it is approximated by evaluating
 a trajectory with step `Δt` which by default it is `T/$(default_Δt_partition)`.
-For discrete time systems `Δt` is ignored and `T` must be an integer.
+For discrete time systems `Δt` is ignored and `T` must be an integer,
+and the orbit has exactly `T` points.
 
 If the stability of the PO is known, you can provide it as a keyword.
 """
