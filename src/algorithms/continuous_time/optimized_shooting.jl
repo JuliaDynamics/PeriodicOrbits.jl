@@ -16,7 +16,8 @@ to find periodic orbits of continuous-time dynamical systems.
 - `nonlinear_solve_kwargs = (reltol=1e-6, abstol=1e-6, maxiters=1000)`: keyword arguments
   to pass to the `solve` function from
   [`NonlinearSolve.jl`](https://github.com/SciML/NonlinearSolve.jl). For details on the
-  keywords see the respective package documentation.
+  keywords see the respective package documentation. The algorithm we use is
+  `NonlinearSolve.LevenbergMarquardt()`.
 
 ## Description
 
