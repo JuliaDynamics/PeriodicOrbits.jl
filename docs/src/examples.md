@@ -1,6 +1,7 @@
 # Examples
 
 ## Optimized Shooting Example
+
 ```@example MAIN
 using PeriodicOrbits
 using CairoMakie
@@ -30,6 +31,7 @@ plot_result(res, ds; azimuth = 1.3pi, elevation=0.1pi)
 ```
 
 ## SchmelcherDiakonos example
+
 For example, let's find the fixed points of the Standard map of period 2, 3, 4, 5, 6
 and 8. We will use all permutations for the `signs` but only one for the `inds`.
 We will also only use one `λ` value, and a 11×11 density of initial conditions.
@@ -124,7 +126,7 @@ Okay, this output is great, and we can tell that it is correct because:
 ### Logistic map example
 
 The idea of periodic orbits can be illustrated easily on 1D maps. Finding all periodic orbits of period
-$n$ is equivalent to finding all points $x$ such that $f^{n}(x)=x$, where $f^{n}$ is $n$-th composition of $f$. Hence, solving $f^{n}(x)-x=0$ yields such points. However, this is often impossible analytically. 
+$n$ is equivalent to finding all points $x$ such that $f^{n}(x)=x$, where $f^{n}$ is $n$-th composition of $f$. Hence, solving $f^{n}(x)-x=0$ yields such points. However, this is often impossible analytically.
 Let's see how [`DavidchackLai`](@ref) deals with it:
 
 First let's start with finding periodic orbits with period $1$ to $9$ for the logistic map with parameter $3.72$.
@@ -141,7 +143,7 @@ output = periodic_orbits(ds, alg, seeds)
 output = uniquepos(output);
 ```
 
-Let's plot the periodic orbits of period $6$. 
+Let's plot the periodic orbits of period $6$.
 
 ```@example MAIN
 function ydata(ds, period, xdata)
@@ -168,14 +170,14 @@ lines!(axis, x, y, color = :blue, linewidth=1.7)
 scatter!(axis, [i[1] for i in fpsx], fpsy, color = :red, markersize=15)
 fig
 ```
-Points $x$ which fulfill $f^{n}(x)=x$ can be interpreted as an intersection of the function 
-$f^{n}(x)$ and the identity function $y=x$. Our result is correct because all the points of 
-the intersection between the identity function and the sixth iterate of the logistic map 
+Points $x$ which fulfill $f^{n}(x)=x$ can be interpreted as an intersection of the function
+$f^{n}(x)$ and the identity function $y=x$. Our result is correct because all the points of
+the intersection between the identity function and the sixth iterate of the logistic map
 were found.
 
 ### Henon Map example
 
-Let's try to use [`DavidchackLai`](@ref) in higher dimension. We will try to detect 
+Let's try to use [`DavidchackLai`](@ref) in higher dimension. We will try to detect
 all periodic points of Henon map of period `1` to `12`.
 
 ```@example MAIN
@@ -213,5 +215,5 @@ fig
 ```
 The theory of periodic orbits states that UPOs form sort of a skeleton of the chaotic attractor. Our results supports this claim since it closely resembles the Henon attractor.
 
-Note that in this case parameter `m` has to be set to at least `6`. Otherwise, the algorithm 
+Note that in this case parameter `m` has to be set to at least `6`. Otherwise, the algorithm
 fails to detect orbits of higher periods correctly.

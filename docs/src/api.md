@@ -5,6 +5,7 @@
 ```@docs
 periodic_orbit
 periodic_orbits
+PeriodicOrbitFinder
 InitialGuess
 PeriodicOrbit
 ```
