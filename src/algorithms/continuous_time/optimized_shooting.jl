@@ -1,4 +1,4 @@
-export periodic_orbit, periodic_orbits, OptimizedShooting
+export OptimizedShooting
 
 using NonlinearSolve
 
@@ -58,8 +58,7 @@ function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGues
     if sol.retcode == ReturnCode.Success
         u0 = sol.u[1:end-1]
         T = sol.u[end]
-        Δt = 0.1
-        return PeriodicOrbit(ds, u0, T; Δt)
+        return PeriodicOrbit(ds, u0, T)
     else
         return nothing
     end

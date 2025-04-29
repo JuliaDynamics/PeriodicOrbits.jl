@@ -157,6 +157,6 @@ end
         if isnothing(jac)
             jac = jacobian(ds)
         end
-        @test postability(ds, PeriodicOrbit(ds, current_state(ds), T, 0.5), jac).stable ==  result
+        @test postability(ds, PeriodicOrbit(ds, current_state(ds), T; Δt = 0.5), jac).stable ==  result
     end
 end

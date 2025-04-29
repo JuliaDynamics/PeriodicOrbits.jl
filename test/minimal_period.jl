@@ -29,10 +29,10 @@ end
     u0 = [-4.473777426249161, -8.595978309705247, 8.410608458823141]
     T = 4.534075383577647
     n = 10
-    po = PeriodicOrbit(ds, u0, n*T, 0.01)
+    po = PeriodicOrbit(ds, u0, n*T; Δt = 0.01)
     minT_po = minimal_period(ds, po)
     @test length(minT_po.points) == PeriodicOrbits.default_Δt_partition
-    @test (ismissing(po.stable) && ismissing(minT_po.stable)) || (po.stable == minT_po.stable) 
+    @test (ismissing(po.stable) && ismissing(minT_po.stable)) || (po.stable == minT_po.stable)
     @test isapprox(T, minT_po.T; atol=1e-4)
 
     Dt = 0.01
@@ -61,7 +61,7 @@ end
     traj, t = trajectory(ds, t; Dt=step_)
 
     noise = 25.2 # distort the period on purpose
-    po = PeriodicOrbit(ds, [x, y], T+noise, 0.01)
+    po = PeriodicOrbit(ds, [x, y], T+noise; Δt = 0.01)
     minT_po = minimal_period(ds, po)
     @test isapprox(minT_po.T, T; atol=1e-5)
 end

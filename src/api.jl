@@ -113,7 +113,7 @@ This function exists because some algorithms optimize/specialize on detecting
 multiple periodic orbits.
 """
 function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{<:InitialGuess} = [InitialGuess(ds)])
-    pos = [periodic_orbit(ds. alg, ig)]
+    pos = [periodic_orbit(ds, alg, igs[1])]
     for ig in view(igs, 2:length(igs))
         res = periodic_orbit(ds, alg, ig)
         push!(pos, res)
@@ -150,8 +150,7 @@ duration `po.T - Δt` with stepsize `Δt`.
   For discrete-time systems this is ignored.
 """
 function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=T/default_Δt_partition)
-    isdiscrete = isdiscretetime(ds)
-    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems"))
+    isdiscretetime(ds) && (Δt = 1)
     traj, _ = trajectory(
         ds,
         T - Δt,
