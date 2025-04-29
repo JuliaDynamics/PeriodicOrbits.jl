@@ -24,56 +24,56 @@ end
 
 @testset "stability discrete 1D" begin
     for (rule, jacob) in [
-            (logistic_ruleOOP, logistic_jacobOOP), 
-            (logistic_ruleIIP, logistic_jacobIIP), 
-            (logistic_ruleOOP, nothing), 
+            (logistic_ruleOOP, logistic_jacobOOP),
+            (logistic_ruleIIP, logistic_jacobIIP),
+            (logistic_ruleOOP, nothing),
             (logistic_ruleIIP, nothing),
         ]
         ds = DeterministicIteratedMap(rule, [0.4], [4.0])
         if isnothing(jacob)
-            jacob = jacobian(ds)    
+            jacob = jacobian(ds)
         end
         # not using StaticArrays to work with IIP
         period3window = [[x] for x in [0.15933615523767342, 0.5128107111364378, 0.9564784814729845]]
         r = 2.3
         set_parameters!(ds, [r])
-        fp = isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable
+        fp = postability(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable
         @test fp == true
         @test typeof(fp) == Bool
 
         r = 3.3
         set_parameters!(ds, [r])
-        @test isstable(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable == false
+        @test postability(ds, PeriodicOrbit(ds, [(r-1)/r], 1), jacob).stable == false
 
         r = 1+sqrt(8)
         set_parameters!(ds, [r])
-        @test isstable(ds, PeriodicOrbit(ds, period3window[1], 3), jacob).stable == true
+        @test postability(ds, PeriodicOrbit(ds, period3window[1], 3), jacob).stable == true
     end
 end
 
 @testset "stability discrete 2D" begin
     for (rule, jacob) in [
-            (henon_ruleOOP, henon_jacobOOP), 
-            (henon_ruleIIP, henon_jacobIIP), 
-            (henon_ruleOOP, nothing), 
+            (henon_ruleOOP, henon_jacobOOP),
+            (henon_ruleIIP, henon_jacobIIP),
+            (henon_ruleOOP, nothing),
             (henon_ruleIIP, nothing),
         ]
-        
+
 
         ds = DeterministicIteratedMap(rule, [0.0, 0.0], [1.4, 0.3])
         if isnothing(jacob)
-            jacob = jacobian(ds)    
+            jacob = jacobian(ds)
         end
         # not using StaticArrays to work with IIP
         unstable_period2 = [
             [0.88389, 0.88389],
             [-0.66612, 1.36612]
         ]
-        fp = isstable(ds, PeriodicOrbit(ds, unstable_period2[1], 2), jacob).stable
+        fp = postability(ds, PeriodicOrbit(ds, unstable_period2[1], 2), jacob).stable
         @test fp == false
         @test typeof(fp) == Bool
 
-        fp = isstable(ds, PeriodicOrbit(ds, unstable_period2[2], 2), jacob).stable
+        fp = postability(ds, PeriodicOrbit(ds, unstable_period2[2], 2), jacob).stable
         @test fp == false
     end
 end
@@ -144,9 +144,9 @@ end
             (superhopfIIP, superhopfIIPjac, true),
             (subhopfOOP, subhopfOOPjac, false),
             (subhopfIIP, subhopfIIPjac, false),
-            (superhopfOOP, nothing, true), 
-            (superhopfIIP, nothing, true), 
-            (subhopfOOP, nothing, false), 
+            (superhopfOOP, nothing, true),
+            (superhopfIIP, nothing, true),
+            (subhopfOOP, nothing, false),
             (subhopfIIP, nothing, false)
         ]
         x, y = [1.0, 0.0] # point on a stable limit cycle
@@ -155,8 +155,8 @@ end
         T = 2*π/ω # period of the stable limit cycle
         ds = CoupledODEs(rule, [x, y], [μ, ω], diffeq=(abstol=1e-8, reltol=1e-8))
         if isnothing(jac)
-            jac = jacobian(ds)    
+            jac = jacobian(ds)
         end
-        @test isstable(ds, PeriodicOrbit(ds, current_state(ds), T, 0.5), jac).stable ==  result
+        @test postability(ds, PeriodicOrbit(ds, current_state(ds), T, 0.5), jac).stable ==  result
     end
 end

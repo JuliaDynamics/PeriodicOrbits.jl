@@ -37,7 +37,7 @@ OptimizedShooting
 
 ```@docs
 minimal_period
-isstable
+postability
 uniquepos
 poequal
 PeriodicOrbits.isdiscretetime

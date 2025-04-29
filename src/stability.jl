@@ -1,9 +1,9 @@
-export isstable
+export postability
 
 using LinearAlgebra: eigvals, mul!
 
 """
-    isstable(ds::CoreDynamicalSystem, po [, jac]) → new_po
+    postability(ds::CoreDynamicalSystem, po::PeriodicOrbit [, jac]) → new_po
 
 Determine the local stability of the periodic orbit `po` using the jacobian rule `jac`.
 Return a new periodic orbit for which `po.stable` is set to `true`
@@ -21,7 +21,7 @@ as stable.
 
 The default value of jacobian rule `jac` is obtained via automatic differentiation.
 """
-function isstable(ds::CoreDynamicalSystem, po::PeriodicOrbit, jac=jacobian(ds))
+function postability(ds::CoreDynamicalSystem, po::PeriodicOrbit, jac=jacobian(ds))
     u0 = po.points[1]
     T = po.T
     stability = _isstable(ds, u0, T, jac)

@@ -86,9 +86,9 @@ equal = poequal(po, minT_po; dthres=1e-3, Tthres=1e-3)
 ```
 
 Most algorithms do not detect the stability of a PO automatically, so you can see it is reported as `missing` above.
-To determine whether found periodic orbit is stable or unstable, we can apply the [`isstable`](@ref) function.
+To determine whether found periodic orbit is stable or unstable, we can apply the [`postability`](@ref) function.
 
 ```@example MAIN
-po = isstable(ds, po)
+po = postability(ds, po)
 "Detected periodic orbit is $(po.stable ? "stable" : "unstable")."
 ```
