@@ -13,10 +13,12 @@ import DynamicalSystemsBase
 using LinearAlgebra: norm
 
 """
+    InitialGuess
+
 A structure that contains an initial guess for a periodic orbit detection algorithms.
 
 * `u0::AbstractArray{<:Real}` - guess of a point in the periodic orbit
-* `T::Union{Real, Nothing}` - guess of period of the orbit. Some algorithms do not require 
+* `T::Union{Real, Nothing}` - guess of period of the orbit. Some algorithms do not require
   the period guess to be given, in which case `T` is set to `nothing`.
 """
 struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
@@ -24,90 +26,104 @@ struct InitialGuess{U<:AbstractArray{<:Real}, R<:Union{Real, Nothing}}
     T::R
 end
 InitialGuess(ds::DynamicalSystem, T=nothing) = InitialGuess(current_state(ds), T)
+InitialGuess(u0::AbstractArray) = InitialGuess(u0, T)
 
 
 """
+    PeriodicOrbit
+
 A structure that contains information about a periodic orbit.
 
-* `points::StateSpaceSet` - points of the periodic orbit. This container 
-  always holds the complete orbit.
+* `points::StateSpaceSet` - points of the periodic orbit. This container
+  always holds the complete orbit (in the sense of being continuously sampled
+  with some sampling `Δt` for continuous time systems).
 * `T::Real` - the period of the orbit
-* `stable::Union{Bool, Missing}` - local stability of the periodic orbit. Unknown stability 
-  is set to `missing`.
-
+* `stable::Union{Bool, Missing}` - local stability of the periodic orbit.
+  If the stability is unknown (not computed automatically by an algorithm),
+  this is set to `missing`.
 """
-struct PeriodicOrbit{D, B, R<:Real}
+struct PeriodicOrbit{D, B, R<:Real, S<:Union{Bool, Missing}}
     points::StateSpaceSet{D, B}
     T::R
-    stable::Union{Bool, Missing}
+    stable::S
 end
 
 """
-    PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real},
+    PeriodicOrbit(ds::DynamicalSystem, u0, T; Δt, stable)
         T::AbstractFloat, Δt=T/$(default_Δt_partition), stable=missing) → po
 
-Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
-of the orbit, the remaining points of the orbit are computed and stored in the `points` 
-field of the returned `po::PeriodicOrbit`. The orbit which contains infinitely many points
- is approximated by calculating a trajectory with step `Δt`. The trajectory is stored in 
- `po.points`. 
+Construct a complete [`PeriodicOrbit`](@ref) with period `T` for `ds` by starting from `u0`.
+
+For continuous time systems, the PO normally contains infinitely many points,
+but it is approximated by calculating
+a trajectory with step `Δt` which by default it is `T/$(default_Δt_partition)`.
+For discrete time systems `Δt` is ignored and `T` must be an integer.
+
+If the stability of the PO is known, you can provide it as a keyword.
 """
-function PeriodicOrbit(ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
-    T::AbstractFloat, Δt=T/default_Δt_partition, stable::Union{Bool, Missing}=missing)
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=Δt), T, stable)
+function PeriodicOrbit(
+        ds::ContinuousTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Real;
+        Δt=T/default_Δt_partition, stable::Union{Bool, Missing}=missing
+    )
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt), T, stable)
 end
 
-"""
-    PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, 
-        T::Integer, stable=missing) → po
-
-Given a point `u0` on the periodic orbit of the dynamical system `ds` and the period `T` 
-of the orbit, the remaining points of the orbit are computed and stored in the `points` 
-field of the returned `po::PeriodicOrbit`. The orbit is obtained by iterating the periodic 
-point `T-1` times and the points are stored in `po.points`.
-"""
-function PeriodicOrbit(ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer, stable::Union{Bool, Missing}=missing)
-    discrete_timestep = 1
-    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=discrete_timestep), T, stable)
+function PeriodicOrbit(
+        ds::DiscreteTimeDynamicalSystem, u0::AbstractArray{<:Real}, T::Integer;
+        Δt = nothing, stable::Union{Bool, Missing} = missing
+    )
+    return PeriodicOrbit(complete_orbit(ds, u0, T; Δt=1), T, stable)
 end
 
 """
     PeriodicOrbitFinder
-    
-Supertype for all the periodic orbit 
-detection algorithms. Each of the concrete subtypes of `PeriodicOrbitFinder` should 
-represent one given algorithm for detecting periodic orbits. This subtype will include 
-all the necessary parameters for the algorithm to work and optionally their default values. 
+
+Supertype for all the periodic orbit detection algorithms.
+Each of the concrete subtypes of `PeriodicOrbitFinder`
+represents one given algorithm for detecting periodic orbits. This subtype includes
+all the necessary metaparameters for the algorithm to work.
 """
 abstract type PeriodicOrbitFinder end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds)) → PeriodicOrbit
+    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder [, ig::InitialGuess]) → PeriodicOrbit
 
-Try to find single periodic orbit of the dynamical system `ds` using the algorithm `alg` given some initial guess `ig`.
-For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
+Try to find a single periodic orbit of the dynamical system `ds` using the algorithm `alg`
+and optionally given some [`InitialGuess`](@ref) `ig` which defaults to `InitialGuess(ds)`.
+Return the result as a [`PeriodicOrbit`](@ref).
+
+For more details on the periodic orbit detection algorithm, see the documentation the `alg`.
 """
 function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
-    result::PeriodicOrbit
-    return result
+    throw(ArugmentError("Not implemented for $(alg)"))
 end
 
 """
-    periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
+    periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder [, igs]::Vector{InitialGuess} = InitialGuess(ds)) → Vector{PeriodicOrbit}
 
-Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg` given some initial guesses `igs`.
-For more details on the periodic orbit detection algorithms, see the documentation of the specific algorithm.
+Try to find multiple periodic orbits of the dynamical system `ds` using the algorithm `alg`
+and optionally given a `Vector` of initial guesses which defaults to `[InitialGuess(ds)]`.
+given some initial guesses `igs`.
+Return the result as a `Vector` of [`PeriodicOrbit`](@ref).
+
+This function exists because some algorithms optimize/specialize on detecting
+multiple periodic orbits.
 """
-function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{InitialGuess} = [InitialGuess(ds)])
-    result::Vector{PeriodicOrbit}
-    return result
+function periodic_orbits(ds::DynamicalSystem, alg::PeriodicOrbitFinder, igs::Vector{<:InitialGuess} = [InitialGuess(ds)])
+    pos = [periodic_orbit(ds. alg, ig)]
+    for ig in view(igs, 2:length(igs))
+        res = periodic_orbit(ds, alg, ig)
+        push!(pos, res)
+    end
+    return pos
 end
 
 """
     isdiscretetime(po::PeriodicOrbit) → true/false
 
-Return `true` if the periodic orbit belongs to a discrete-time dynamical system, `false` if 
+Return `true` if the periodic orbit belongs to a discrete-time dynamical system, `false` if
 it belongs to a continuous-time dynamical system.
+This simple function only checks whether the period is an integer or not.
 """
 function DynamicalSystemsBase.isdiscretetime(po::PeriodicOrbit{D,B,R}) where {D,B,R<:Integer}
     true
@@ -120,24 +136,24 @@ end
 """
     complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; kwargs...) → StateSpaceSet
 
-Given point `u0` on the periodic orbit with period `T`, compute the remaining points of the 
-periodic orbit. For POs of discrete-time systems, it means iterating the periodic point 
-`po.T - 1` times. For POs of continuous-time systems, it means integrating the system for 
+Given point `u0` on the periodic orbit with period `T`, compute the remaining points of the
+periodic orbit. For POs of discrete-time systems, it means iterating the periodic point
+`T - 1` times. For POs of continuous-time systems, it means integrating the system for
 duration `po.T - Δt` with stepsize `Δt`.
 
 ## Keyword arguments
 
-* `Δt` : integration/iteration stepsize. For discrete-time systems this is ignored as it is 
-  always 1.
+* `Δt = T/$(default_Δt_partition)`: integration stepsize.
+  For discrete-time systems this is ignored.
 """
-function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=1)
+function complete_orbit(ds::DynamicalSystem, u0::AbstractArray{<:Real}, T::Real; Δt::Real=T/default_Δt_partition)
     isdiscrete = isdiscretetime(ds)
-    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems")) 
+    isdiscrete &&  Δt ≠ 1 && throw(ArgumentError("Δt must be equal to 1 for discrete-time systems"))
     traj, _ = trajectory(
         ds,
         T - Δt,
         u0;
-        Δt=Δt
+        Δt = Δt
     )
     return traj
 end
@@ -146,12 +162,12 @@ end
 """
     podistance(po1::PeriodicOrbit, po2::PeriodicOrbit, [, distance]) → Real
 
-Compute the distance between two periodic orbits `po1` and `po2`. 
-Periodic orbits `po1` and `po2` and the dynamical system `ds` all have to 
+Compute the distance between two periodic orbits `po1` and `po2`.
+Periodic orbits `po1` and `po2` and the dynamical system `ds` all have to
 be either discrete-time or continuous-time.
 Distance between the periodic orbits is computed using the given distance function `distance`.
-The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal 
-Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2`. 
+The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds the minimal
+Euclidean distance between any pair of points where one point belongs to `po1` and the other to `po2`.
 For other options of the distance function, see `StateSpaceSets.set_distance`.
 Custom distance function can be provided as well.
 """
@@ -169,7 +185,7 @@ end
 """
     poequal(po1::PeriodicOrbit, po2::PeriodicOrbit; kwargs...) → true/false
 
-Return `true` if the periodic orbits `po1` and `po2` are equal within the given thresholds.
+Return `true` if the periodic orbits `po1` and `po2` are approximately equal in period and in location.
 
 ## Keyword arguments
 
@@ -177,11 +193,7 @@ Return `true` if the periodic orbits `po1` and `po2` are equal within the given 
 * `dthres=1e-3` : distance between periodic orbits must be less than this threshold
 * `distance` : distance function used to compute the distance between the periodic orbits
 
-Distance between the orbits is computed using the given distance function `distance`.
-The default distance function is `StrictlyMinimumDistance(true, Euclidean())` which finds 
-the minimal Euclidean distance between any pair of points where one point belongs to `po1` 
-and the other to `po2`. For other options of the distance function, see 
-`StateSpaceSets.set_distance`. Custom distance function can be provided as well.
+Distance between the orbits is computed using `podistance` with `distance`.
 """
 function poequal(
     po1::PeriodicOrbit, po2::PeriodicOrbit;
@@ -202,13 +214,12 @@ end
     uniquepos(pos::Vector{<:PeriodicOrbit}; atol=1e-6) → Vector{PeriodicOrbit}
 
 Return a vector of unique periodic orbits from the vector `pos` of periodic orbits.
-By unique we mean that the distance between any two periodic orbits in the vector is 
+By unique we mean that the distance between any two periodic orbits in the vector is
 greater than `atol`. To see details about the distance function, see [`podistance`](@ref).
 
 ## Keyword arguments
 
 * `atol` : minimal distance between two periodic orbits for them to be considered unique.
-
 """
 function uniquepos(pos::Vector{<:PeriodicOrbit}; atol::Real=1e-6)
     length(pos) == 0 && return pos
