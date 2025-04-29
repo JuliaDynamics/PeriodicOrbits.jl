@@ -7,7 +7,6 @@ pages = [
     "index.md",
     "tutorial.md",
     "api.md",
-    "algorithms.md",
     "examples.md",
     "developer.md",
     "references.md"

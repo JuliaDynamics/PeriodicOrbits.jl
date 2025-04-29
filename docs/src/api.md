@@ -1,17 +1,34 @@
 # The Public API
 
+## Main functions
 
 ```@docs
-PeriodicOrbit
-InitialGuess
 periodic_orbit
 periodic_orbits
+InitialGuess
+PeriodicOrbit
 ```
+
 ## Algorithms for Discrete-Time Systems
 
 - [`SchmelcherDiakonos`](@ref)
 - [`DavidchackLai`](@ref)
 
+```@docs
+SchmelcherDiakonos
+lambdamatrix
+lambdaperms
+```
+
+```@docs
+DavidchackLai
+```
+
+
 ## Algorithms for Continuous-Time Systems
 
 - [`OptimizedShooting`](@ref)
+
+```@docs
+OptimizedShooting
+```
