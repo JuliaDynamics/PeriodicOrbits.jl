@@ -25,7 +25,6 @@ lambdaperms
 DavidchackLai
 ```
 
-
 ## Algorithms for Continuous-Time Systems
 
 - [`OptimizedShooting`](@ref)
@@ -33,3 +32,20 @@ DavidchackLai
 ```@docs
 OptimizedShooting
 ```
+
+## Utility functions
+
+```@docs
+minimal_period
+isstable
+uniquepos
+poequal
+PeriodicOrbits.isdiscretetime
+podistance
+```
+
+
+## Adding new algorithms
+
+To implement a new periodic orbit finding algorithm, simply create a new type,
+make it subtype `PeriodicOrbitFinder`, and then extend the function [`periodic_orbit`](@ref) for it.

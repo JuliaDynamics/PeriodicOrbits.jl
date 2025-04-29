@@ -2,14 +2,14 @@ export periodic_orbit, periodic_orbits, OptimizedShooting
 
 using NonlinearSolve
 
-
 """
     OptimizedShooting(; kwargs...)
 
 A shooting method [Dednam2014](@cite) that uses Levenberg-Marquardt optimization
-to find periodic orbits of continuous-time dynamical systems.
+to find periodic orbits of continuous time dynamical systems.
 
 ## Keyword arguments
+
 - `Δt::Float64 = 1e-6`: step between the points in the residual `R`. See below for details.
 - `n::Int64 = 2`: `n*dimension(ds)` is the number of points in the residual `R`. See below
   for details.
@@ -21,7 +21,7 @@ to find periodic orbits of continuous-time dynamical systems.
 
 ## Description
 
-Let us consider the following continuous-time dynamical system
+Let us consider the following continuous time dynamical system
 
 ```math
 \\frac{dx}{dt} = f(x, p, t)
@@ -50,7 +50,7 @@ close to an existing periodic orbit.
 end
 
 function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGuess)
-    f = optimized_shooting_error_function(ds)
+    f = optimized_shooting_error_function(ds, alg)
     prob = NonlinearLeastSquaresProblem(
         NonlinearFunction(f, resid_prototype = zeros(alg.n*dimension(ds))), [ig.u0..., ig.T]
     )
@@ -59,13 +59,13 @@ function periodic_orbit(ds::CoupledODEs, alg::OptimizedShooting, ig::InitialGues
         u0 = sol.u[1:end-1]
         T = sol.u[end]
         Δt = 0.1
-        return PeriodicOrbit(ds, u0, T, Δt)
+        return PeriodicOrbit(ds, u0, T; Δt)
     else
         return nothing
     end
 end
 
-function optimized_shooting_error_function(ds)
+function optimized_shooting_error_function(ds, alg)
     D = dimension(ds)
     f = (err, v, p) -> begin
         if isinplace(ds)
@@ -82,8 +82,8 @@ function optimized_shooting_error_function(ds)
         end
         tspan = (0.0, T + alg.n*alg.Δt)
 
-        sol = solve(SciMLBase.remake(referrenced_sciml_prob(ds); u0 = u0, tspan = tspan);
-            ds.diffeq..., saveat = bounds
+        sol = solve(SciMLBase.remake(DynamicalSystemsBase.referrenced_sciml_prob(ds); u0 = u0, tspan = tspan);
+            DynamicalSystemsBase.DEFAULT_DIFFEQ..., ds.diffeq..., saveat = bounds
         )
         if (length(sol.u) == alg.n*2)
             for i in 1:alg.n

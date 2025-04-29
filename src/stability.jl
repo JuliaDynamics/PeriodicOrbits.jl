@@ -5,20 +5,19 @@ using LinearAlgebra: eigvals, mul!
 """
     isstable(ds::CoreDynamicalSystem, po [, jac]) → new_po
 
-Determine the local stability of the periodic orbit `po` using the jacobian rule `jac`. 
-Returns a new periodic orbit for which `po.stable` is set to `true` 
- if the periodic orbit 
-is stable or `false` if it is unstable.
+Determine the local stability of the periodic orbit `po` using the jacobian rule `jac`.
+Return a new periodic orbit for which `po.stable` is set to `true`
+if the periodic orbit is stable or `false` if it is unstable.
 
-For discrete-time systems, the stability is determined using eigenvalues of the jacobian 
-of `po.T`-th iterate of the dynamical system `ds` at the point `po.points[1]`. If the 
-maximum absolute value of the eigenvalues is less than `1`, the periodic orbit is marked 
+For discrete-time systems, the stability is determined using eigenvalues of the jacobian
+of `po.T`-th iterate of the dynamical system `ds` at the point `po.points[1]`. If the
+maximum absolute value of the eigenvalues is less than `1`, the periodic orbit is marked
 as stable.
 
-For continuous-time systems, the stability is determined by the Floquet multipliers of the 
-monodromy matrix. If the maximum absolute value of the Floquet multipliers is less than 
-`1` (while neglecting the multiplier which is always 1), the periodic orbit is marked 
- as stable.
+For continuous-time systems, the stability is determined by the Floquet multipliers of the
+monodromy matrix. If the maximum absolute value of the Floquet multipliers is less than
+`1` (while neglecting the multiplier which is always 1), the periodic orbit is marked
+as stable.
 
 The default value of jacobian rule `jac` is obtained via automatic differentiation.
 """
