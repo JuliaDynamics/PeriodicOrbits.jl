@@ -92,6 +92,9 @@ Try to find a single periodic orbit of the dynamical system `ds` using the algor
 and optionally given some [`InitialGuess`](@ref) `ig` which defaults to `InitialGuess(ds)`.
 Return the result as a [`PeriodicOrbit`](@ref).
 
+Depending on `alg`, it is not guaranteed that a periodic orbit will be found given `ds, ig`.
+If one is not found, `nothing` is returned instead.
+
 For more details on the periodic orbit detection algorithm, see the documentation the `alg`.
 """
 function periodic_orbit(ds::DynamicalSystem, alg::PeriodicOrbitFinder, ig::InitialGuess = InitialGuess(ds))
