@@ -36,12 +36,12 @@ OptimizedShooting
 ## Utility functions
 
 ```@docs
-minimal_period
 postability
-uniquepos
-poequal
-PeriodicOrbits.isdiscretetime
+minimal_period
 podistance
+poequal
+uniquepos
+PeriodicOrbits.isdiscretetime
 ```
 
 
