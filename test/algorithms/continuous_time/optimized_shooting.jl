@@ -2,6 +2,10 @@ using Test
 using PeriodicOrbits
 using LinearAlgebra: norm
 
+# TODO: This test alone is not good enough.
+# We should also use a dynamical system system with a known
+# unstable periodic orbit, such as the Hopf bifurcation normal form.
+
 @inbounds function lorenz_rule(u, p, t)
     du1 = p[1] * (u[2] - u[1])
     du2 = u[1] * (p[2] - u[3]) - u[2]
