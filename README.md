@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/JuliaDynamics/PeriodicOrbits.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaDynamics/PeriodicOrbits.jl)
 [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/PeriodicOrbits)](https://pkgs.genieframework.com?packages=PeriodicOrbits)
 
-**PeriodicOrbits.jl** provides both the interface and algorithm implementations for finding stable and unstable periodic orbits of dynamical systems based on the DynamicalSystems.jl ecosystem.
+**PeriodicOrbits.jl** provides both the interface and algorithm implementations for finding stable and unstable periodic orbits of discrete and continuous time dynamical systems based on the DynamicalSystems.jl ecosystem.
 
 Currently this is work in progress and the interface is being finalized. The package is not registered yet. To install it, run
 ```
